@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openGalleryWith(images, startIndex = 0) {
         if (!Array.isArray(images) || images.length === 0) return;
         clearGallery();
-        galleryImages = images.map(s => isAbsolutePath(s) ? s : `../assets/img/histoire/${String(s).replace(/^\/+/, '')}`);
+        galleryImages = images.map(s => isAbsolutePath(s) ? s : `../histoire/${String(s).replace(/^\/+/, '')}`);
         galleryImages.forEach((src, idx) => {
             const t = document.createElement('img');
             t.src = src;
@@ -628,3 +628,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
