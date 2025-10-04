@@ -1,0 +1,42 @@
+{
+    "0": {
+        "title": "Patrimoines",
+        "text": "<p>Préserver le patrimoine, c'est aussi protéger la mémoire des terres agricoles et les savoir-faire qui y sont liés.</br>Le Champ Carrillon s'inscrit dans la continuité d'un territoire vivant, où la terre est considérée comme un héritage commun à entretenir et à transmettre. En valorisant la richesse naturelle et historique du lieu, nous cherchons à maintenir des espaces verts productifs et ouverts, qui participent à l'équilibre écologique et social du village.</p>",
+        "image": "/assets/img/projet/img0.jpg"
+    },
+    "1": {
+        "title": "Entretien des terres",
+        "text": "<p>L'entretien des terres repose sur une philosophie : travailler avec la nature, pas contre elle. Le Champ Carrillon pratique le maraîchage sur sol vivant (MSV), une méthode qui préserve la structure du sol, favorise la vie microbienne et limite les labours. L'agroécologie, la biodynamie et la permaculture viennent compléter cette approche en intégrant le respect du cycle des saisons, la complémentarité des cultures et la biodiversité. Ces techniques, douces mais exigeantes, sont au cœur de notre engagement pour une agriculture durable, autonome et respectueuse des équilibres naturels.</p>",
+        "image": "/assets/img/projet/img1.jpg"
+    },
+    "2": {
+        "title": "Environnement",
+        "text": "<p>Protéger l'environnement est un fondement essentiel du Champ Carrillon. Chaque décision vise à réduire l'impact écologique de la production : aucun pesticide, aucune énergie fossile, un usage raisonné de l'eau et un recours privilégié aux circuits courts. Le champ est pensé comme un écosystème à part entière, où la biodiversité est encouragée et où chaque élément - mare, haies, ruches, prairies - participe à la santé globale du lieu. En cultivant sans détruire, nous prouvons qu'un autre modèle agricole est possible : productif, équilibré et respectueux du vivant.</p>",
+        "image": "/assets/img/projet/img2.jpg"
+    },
+    "3": {
+        "title": "Outils et Technologie",
+        "text": "<p>Le Champ Carrillon privilégie les outils simples, durables et adaptés à l'échelle humaine. L'usage d'outils manuels permet une approche fine du travail du sol et réduit la consommation d'énergie. Nous explorons aussi les énergies renouvelables, notamment l'énergie solaire et les systèmes de cogénération, pour tendre vers une autonomie énergétique. Les technologies modernes, comme les réseaux sociaux, servent quant à elles à partager nos pratiques, à rendre visible notre démarche et à sensibiliser le public. L'innovation ici ne remplace pas le geste, elle l'accompagne avec sens.</p>",
+        "image": "/assets/img/projet/img3.jpg"
+    },
+    "4": {
+        "title": "Culture et éducation",
+        "text": "<p>Transmettre, c'est faire pousser plus que des légumes : c'est semer des idées. Les activités pédagogiques du Champ Carrillon - visites, ateliers et temps d'échange - sont des moments de partage essentiels. Elles permettent de reconnecter petits et grands à la nature, d'expliquer les cycles de vie du sol, et de redonner du sens à notre rapport à l'alimentation. L'éducation populaire est ici un outil d'émancipation : comprendre la terre, c'est apprendre à en prendre soin. Chaque visite, chaque atelier, contribue à former des citoyens conscients et acteurs d'un changement durable.</p>",
+        "image": "/assets/img/projet/img4.jpg"
+    },
+    "5": {
+        "title": "Santé et bien-être",
+        "text": "<p>Le Champ Carrillon considère la santé comme un tout : celle du sol, des plantes, des animaux et des humains. Nous mettons en avant des approches naturelles telles que la prophylaxie et l'aromathérapie, pour prévenir plutôt que guérir. Les plantes aromatiques cultivées au champ participent à cet équilibre, tout comme le choix de produits sains et sans résidus. Le bien-être passe aussi par un rythme de travail respectueux du corps et de la nature. Cultiver dans un environnement vivant, c'est aussi cultiver la sérénité et la santé de ceux qui y participent.</p>",
+        "image": "/assets/img/projet/img5.jpg"
+    },
+    "6": {
+        "title": "Finances et économie",
+        "text": "<p>Notre modèle économique repose sur une logique de sobriété et d'équilibre. Produire à échelle humaine permet de proposer un prix juste - ni bradé, ni spéculatif - qui respecte à la fois notre travail et le pouvoir d'achat des habitants. L'économie du Champ Carrillon est circulaire : rien n'est perdu, tout est valorisé, du recyclage des matériaux à la récupération de l'eau. Nous visons l'autonomie financière par des choix cohérents et adaptés. Chaque euro investi soutient une économie locale, éthique et durable.</p>",
+        "image": "/assets/img/projet/img6.jpg"
+    },
+    "7": {
+        "title": "Communautés",
+        "text": "<p>Le Champ Carrillon est avant tout une aventure collective. Nous collaborons avec des collectivités, des associations, des artisans et des fournisseurs locaux pour construire un réseau de confiance et de solidarité. Ces partenariats permettent de mutualiser les savoirs, d'échanger des ressources et de créer un maillage humain fort autour du projet. Nous croyons à la force du lien, à la proximité et à la coopération comme fondements d'une agriculture vivante. Le champ n'est pas un lieu isolé : c'est un carrefour d'énergies, un espace ouvert qui grandit grâce à la communauté qui l'entoure.</p>",
+        "image": "/assets/img/projet/img7.jpg"
+    }
+}
