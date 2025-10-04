@@ -50,14 +50,14 @@ with OUTPUT_FILE.open("w", encoding="utf-8") as f:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Actualités — Le Champ Carillon</title>
-    <link rel="stylesheet" href="/assets/css/header.css">
-    <link rel="stylesheet" href="/assets/css/layout.css">
-    <link rel="stylesheet" href="/assets/css/actualites.css">
-    <link rel="stylesheet" href="/assets/css/overlay.css">
+    <link rel="stylesheet" href="../assets/css/header.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/actualites.css">
+    <link rel="stylesheet" href="../assets/css/overlay.css">
 </head>
 <body>
     <div id="header"></div>
-    <script src="/assets/js/loadHeader.js" defer></script>
+    <script src="../assets/js/loadHeader.js" defer></script>
     <div class="scroll-container">
         <main class="actualites">
             <h1 class="actualites-title fade-in">Actualités</h1>
@@ -77,7 +77,7 @@ with OUTPUT_FILE.open("w", encoding="utf-8") as f:
                     <div class="photos-grid">''')
             for src in post["images"]:
                 f.write(f'''
-                        <img src="{src}" alt="">''')
+                        <img src="..{src}" alt="">''')
             f.write("""
                     </div>
                 </div>""")
@@ -87,7 +87,7 @@ with OUTPUT_FILE.open("w", encoding="utf-8") as f:
     f.write("""
         </main>
     </div>
-    <script src="/assets/js/actualite.js" defer></script>
+    <script src="../assets/js/actualite.js" defer></script>
 </body>
 </html>
 """)
