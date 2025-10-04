@@ -87,31 +87,41 @@ function initHeaderNavigation(container) {
 }
 
 function markActivePage(container, navLinks, btnContact) {
-    const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
-
-    const normalize = (p) => {
+    const normalizePath = (p) => {
         if (!p) return '/';
         try {
-            const u = new URL(p, location.origin);
-            return u.pathname.replace(/\/+$/, '') || '/';
+            const resolved = new URL(p, document.baseURI).pathname;
+            let clean = resolved.replace(/\/+$/, '');
+            clean = clean.replace(/\/index\.html$/i, '') || '/';
+            return clean;
         } catch (e) {
-            return (p + '').replace(/\/+$/, '') || '/';
+            let s = (p + '').replace(/\/+$/, '').replace(/\/index\.html$/i, '') || '/';
+            return s;
         }
     };
 
+    const currentPath = normalizePath(window.location.pathname);
+
     navLinks.forEach(link => {
-        const linkPath = normalize(link.getAttribute('href'));
+        const href = link.getAttribute('href') || '';
+        const linkPath = normalizePath(href);
         if (linkPath === currentPath) {
             link.classList.add('active');
             link.setAttribute('aria-current', 'page');
+        } else {
+            link.classList.remove('active');
+            link.removeAttribute('aria-current');
         }
     });
 
     if (btnContact) {
-        const contactHref = normalize(btnContact.getAttribute('href') || '/pages/contact.html');
-        if (contactHref === currentPath) {
+        const contactHref = btnContact.getAttribute('href') || '/pages/contact.html';
+        if (normalizePath(contactHref) === currentPath) {
             btnContact.classList.add('active');
             btnContact.setAttribute('aria-current', 'page');
+        } else {
+            btnContact.classList.remove('active');
+            btnContact.removeAttribute('aria-current');
         }
     }
 }
