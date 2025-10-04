@@ -69,7 +69,7 @@
             const photosContainer = document.querySelector('.photos');
             if (!photosContainer) return;
 
-            fetch('./assets/img/galerie/manifest.json')
+            fetch('../assets/img/galerie/manifest.json')
                 .then(res => res.ok ? res.json() : Promise.reject('manifest non ok'))
                 .then(images => {
                     if (!Array.isArray(images) || images.length === 0) return;
@@ -79,7 +79,7 @@
                     photosContainer.innerHTML = '';
                     selected.forEach(img => {
                         const el = document.createElement('img');
-                        el.src = `./assets/img/galerie/${img}`;
+                        el.src = `../assets/img/galerie/${img}`;
                         el.alt = 'Photo du champ';
                         photosContainer.appendChild(el);
                     });

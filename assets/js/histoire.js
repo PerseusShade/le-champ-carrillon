@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const PX_PER_CM = 96 / 2.54;
     const TARGET_PAD_PX = Math.round(TARGET_PAD_CM * PX_PER_CM);
     const REFERENCE_SELECTOR = '.galerie';
-    const DATE_JSON_PATH = './assets/img/histoire/dates.json';
+    const DATE_JSON_PATH = '../assets/img/histoire/dates.json';
 
     function isAbsolutePath(p) { return typeof p === 'string' && (p.startsWith('/') || p.startsWith('http://') || p.startsWith('https://')); }
 
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const all = [];
             Object.values(dateJson || {}).forEach(entry => {
                 if (!entry || !Array.isArray(entry.images)) return;
-                entry.images.forEach(s => { if (s) all.push(`./assets/img/histoire/${String(s).replace(/^\/+/, '')}`); });
+                entry.images.forEach(s => { if (s) all.push(`../assets/img/histoire/${String(s).replace(/^\/+/, '')}`); });
             });
             const unique = Array.from(new Set(all));
             if (!unique.length) return;
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openGalleryWith(images, startIndex = 0) {
         if (!Array.isArray(images) || images.length === 0) return;
         clearGallery();
-        galleryImages = images.map(s => isAbsolutePath(s) ? s : `./assets/img/histoire/${String(s).replace(/^\/+/, '')}`);
+        galleryImages = images.map(s => isAbsolutePath(s) ? s : `../assets/img/histoire/${String(s).replace(/^\/+/, '')}`);
         galleryImages.forEach((src, idx) => {
             const t = document.createElement('img');
             t.src = src;
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cell.classList.add('img-bleed');
         cell.style.padding = '0';
         cell.style.overflow = 'hidden';
-        const finalSrc = `./assets/img/histoire/${src}`;
+        const finalSrc = `../assets/img/histoire/${src}`;
         const img = document.createElement('img');
         img.alt = alt || '';
         img.loading = 'lazy';
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         img.addEventListener('click', (e) => {
             e.stopPropagation();
             if (!Array.isArray(galleryImagesForDate) || galleryImagesForDate.length === 0) return;
-            const galleryFullPaths = galleryImagesForDate.map(s => `./assets/img/histoire/${s}`);
+            const galleryFullPaths = galleryImagesForDate.map(s => `../assets/img/histoire/${s}`);
             openGalleryWith(galleryFullPaths, Math.max(0, Math.min(galleryIndex || 0, galleryFullPaths.length - 1)));
         });
         cell.appendChild(img);

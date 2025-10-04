@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return array;
     }
 
-    const manifestUrl = './assets/img/galerie/manifest.json';
+    const manifestUrl = '../assets/img/galerie/manifest.json';
 
     fetch(manifestUrl)
         .then(res => {
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const div = document.createElement('div');
                 div.className = 'gallery-item';
                 const img = document.createElement('img');
-                img.src = `./assets/img/galerie/${file}`;
+                img.src = `../assets/img/galerie/${file}`;
                 img.alt = `Photo ${index + 1}`;
                 img.dataset.index = index;
                 div.appendChild(img);

@@ -12,7 +12,7 @@
     let PROJECT_TEXTS = {};
 
     (function loadTextsJson() {
-        fetch('/assets/img/projet/texts.json', { cache: 'no-cache' })
+        fetch('../assets/img/projet/texts.json', { cache: 'no-cache' })
             .then(r => { if (!r.ok) throw r; return r.json(); })
             .then(j => { PROJECT_TEXTS = j || {}; })
             .catch(() => { PROJECT_TEXTS = {}; });
