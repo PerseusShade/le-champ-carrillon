@@ -1,0 +1,26 @@
+[
+    {
+        "id": "production",
+        "image": "panier.jpg",
+        "title": "Production",
+        "text": "<p>La production maraîchère est le cœur vivant du Champ Carrillon.</p></br><p>Nous cultivons sur sol vivant, par rotations réfléchies et en privilégiant la diversité des espèces pour renforcer la résilience des parcelles. Entre plein champ et tunnels, chaque espace a sa fonction : anticiper les saisons, diversifier les récoltes et limiter les intrants. La pouponnière nous permet de produire nos propres plants soigneusement élevés avant repiquage, ce qui réduit les dépendances et assure des plants vigoureux adaptés à nos pratiques.</p></br><p>Au-delà de la simple fourniture de légumes, cette production incarne un choix éthique : travailler avec la terre, favoriser la biodiversité, maintenir la fertilité par des pratiques régénératrices et proposer des aliments goûteux, locaux et de saison.</br>Les récoltes sont directement proposées au magasin pour garder un lien court entre vous et la ferme.</br>Enfin, chaque décision culturale participe à un projet plus vaste - montrer qu'il est possible de produire en quantité utile sans sacrifier la vie du sol ni la richesse écologique du lieu.</p>"
+    },
+    {
+        "id": "visites",
+        "image": "visites.jpg",
+        "title": "Visites pédagogiques",
+        "text": "<p>Les visites pédagogiques sont conçues comme des moments d'éveil et de transmission.</p></br><p>Nous accueillons des groupes scolaires, des associations et des familles pour partager les gestes du maraîchage, expliquer le fonctionnement du sol vivant et observer la biodiversité en action.</br>Ces visites sont adaptées à tous les âges : elles combinent découverte sensorielle, observations pratiques et explications accessibles sur la saisonnalité, la pollinisation et le rôle des habitats comme la mare ou la prairie mellifère.</p></br><p>L'importance de ces visites est double : d'une part elles rapprochent le public de l'origine de son alimentation et d'autre part elles transmettent des savoir-faire essentiels pour reconstruire une culture du vivant.</br>En montrant concrètement comment fonctionne une exploitation respectueuse, nous semons des idées et des pratiques qui peuvent se propager chez les participants, familles et enseignants inclus.</p>"
+    },
+    {
+        "id": "apiculture",
+        "image": "apiculteur.jpg",
+        "title": "Apiculture",
+        "text": "<p>L'apiculture installée sur le site joue un rôle central pour la pollinisation et la santé des cultures.</p></br><p>Les ruches, gérées par Yann, apiculteur professionnel, permettent d'assurer une pollinisation efficace des fruitiers, des légumineuses et des fleurs qui composent la prairie mellifère.</br>Le miel produit localement est aussi un lien tangible entre la nature du lieu et la table : il est récolté avec soin et proposé au magasin.</p><p>Au-delà du produit, l'apiculture illustre l'interdépendance entre production agricole et écosystèmes : des abeilles en bonne santé signifient des rendements stabilisés et une biodiversité florissante.</br>La collaboration avec un apiculteur professionnel garantit un suivi attentif des ruches, des bonnes pratiques sanitaires et une meilleure intégration des abeilles dans la dynamique écologique du Champ Carrillon.</br>Enfin, la présence des ruches est un support pédagogique précieux lors des visites et ateliers, pour expliquer le rôle des pollinisateurs et la nécessité de les protéger.</p>"
+    },
+    {
+        "id": "ateliers",
+        "image": "03.jpg",
+        "title": "Ateliers maraîchers",
+        "text": "<p>Les ateliers maraîchers donnent la place à l'apprentissage pratique et approfondi.</p></br><p>Destinés aux jardiniers amateurs, aux bénévoles ou aux personnes souhaitant se reconvertir, ces ateliers couvrent des sujets concrets : préparation des sols, semis, techniques de repiquage, gestion des rotations, protection alliée et conduite sous tunnel.</br>Ils alternent démonstrations, exercices pratiques et retours d'expérience pour que vous repartiez avec des gestes applicables chez vous.</p></br><p>Au niveau du projet, les ateliers sont essentiels : ils diffusent notre approche du sol vivant, créent une communauté autour de pratiques durables et permettent d'amplifier l'impact local du Champ Carrillon.</br>En formant des citoyens et des producteurs en herbe, nous participons à la construction d'une autonomie alimentaire partagée et d'une culture paysanne renouvelée.</p>"
+    }
+]
