@@ -1,0 +1,40 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: "Segoe UI", sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+:root {
+    --header-height: 59px;
+}
+
+#header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--header-height);
+    z-index: 1000;
+}
+
+.scroll-container {
+    position: absolute;
+    top: var(--header-height);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+.scroll-container main {
+    background: #f9f9f6;
+}

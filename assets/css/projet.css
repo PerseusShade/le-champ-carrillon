@@ -1,0 +1,224 @@
+:root {
+    --main-green: #318C57;
+    --main-orange: #F7931E;
+    --main-brown: #7B2D2D;
+    --main-bg: #f9f9f6;
+}
+
+html, body {
+    overflow: hidden;
+    background-color: var(--main-bg);
+    padding-top: var(--header-height, 60px);
+}
+
+#petal-canvas {
+    z-index: 0;
+}
+
+svg {
+    position: fixed;
+    pointer-events: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    z-index: 1;
+}
+
+.petales {
+    transform-origin: 50% 50%;
+    will-change: transform;
+}
+
+.logo-center, .petal-text, .keyword{
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+}
+.logo-center.visible, .petal-text.visible, .keyword.visible {
+    opacity: 1;
+    pointer-events: none;
+}
+
+.petal-text-0 { font-size: 22px; fill: #7B2D2D; font-weight: bold; }
+.petal-text-1 { font-size: 20px; fill: #1C5CA0; font-weight: bold; }
+.petal-text-2 { font-size: 18px; fill: #4CAF50; font-weight: bold; }
+.petal-text-3 { font-size: 24px; fill: #F7931E; font-weight: bold; }
+.petal-text-4 { font-size: 20px; fill: #555; font-weight: bold; }
+.petal-text-5 { font-size: 22px; fill: #AA3377; font-weight: bold; }
+.petal-text-6 { font-size: 19px; fill: #2E7D32; font-weight: bold; }
+.petal-text-7 { font-size: 21px; fill: #8E24AA; font-weight: bold; }
+
+.petal-desc {
+    font-size: 13px;
+    fill: #666;
+    font-style: italic;
+    opacity: 0.8;
+    letter-spacing: 0.5px;
+}
+
+#keywords-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+}
+
+.keyword {
+    position: absolute;
+    transform-box: fill-box;
+    transform-origin: center;
+    white-space: nowrap;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.keyword.visible {
+    animation: pulse 3s infinite ease-in-out;
+}
+
+.keyword-0 { font-weight: bold; color: #333; }
+.keyword-1 { font-weight: italic; color: #1c5ca0; }
+.keyword-2 { font-weight: bold; color: #4caf50; }
+.keyword-3 { font-weight: bold; color: #f7931e; }
+.keyword-4 { font-style: italic; color: #aa3377; }
+.keyword-5 { font-weight: bold; color: #e53935; }
+.keyword-6 { font-style: italic; color: #2e7d32; }
+.keyword-7 { font-weight: bold; color: #8e24aa; }
+
+.petal-zone {
+    pointer-events: auto;
+    cursor: pointer;
+    touch-action: none;
+}
+
+.morph-overlay-svg {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 8000;
+    pointer-events: auto;
+    overflow: visible;
+}
+
+.morph-overlay-image {
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.morph-shadow {
+    filter: drop-shadow(0 20px 60px rgba(0,0,0,0.35));
+}
+
+.morph-close-btn {
+    position: fixed;
+    top: calc(var(--header-height, 60px) + 8px);
+    right: 12px;
+    z-index: 10010;
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    border: 2px solid rgba(0,0,0,0.12);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    opacity: 0;
+    transform: scale(.94);
+    transition: opacity .25s ease, transform .25s ease;
+    pointer-events: none;
+}
+
+.morph-close-btn.show {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.morph-close-btn:hover {
+    transform: scale(1.03);
+}
+
+.morph-text-box {
+    --pad-vertical: 10px;
+    --pad-horizontal: 14px;
+    position: absolute;
+    background: var(--main-bg);
+    color: var(--main-brown);
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    padding: var(--pad-vertical) var(--pad-horizontal);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    border: 1px solid rgba(0,0,0,0.06);
+    max-width: min(60vw, 420px);
+    min-width: 160px;
+    pointer-events: auto;
+    transition: opacity 260ms ease, transform 260ms ease;
+    opacity: 1;
+    transform-origin: center center;
+    text-align: left;
+    line-height: 1.3;
+    z-index: 10005;
+}
+
+.morph-text-title {
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 6px;
+    color: var(--main-brown);
+}
+
+.morph-text-desc {
+    font-size: 13px;
+    color: #555;
+    margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+    .morph-text-box { max-width: 80vw; min-width: 120px; padding: 8px 10px; }
+    .morph-text-title { font-size: 16px; }
+    .morph-text-desc { font-size: 12px; }
+}
+
+.morph-overlay-html {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10005;
+}
+
+.morph-text-box {
+    pointer-events: auto;
+}
+
+.morph-info-box {
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%, 8px);
+    opacity: 0;
+    background: var(--main-bg);
+    color: var(--main-brown);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.12);
+    border: 2px solid var(--main-orange);
+    border-radius: 10px;
+    padding: 18px 20px;
+    max-width: min(72vw, 820px);
+    min-width: 220px;
+    z-index: 10005;
+    pointer-events: auto;
+    transition: opacity 260ms ease, transform 260ms cubic-bezier(.22,.9,.31,1);
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    line-height: 1.5;
+    text-align: justify;
+}
+
+.morph-info-inner {
+    font-size: 15px;
+    color: #334;
+}

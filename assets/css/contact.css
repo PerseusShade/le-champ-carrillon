@@ -1,0 +1,203 @@
+:root {
+    --main-green: #318C57;
+    --main-orange: #F7931E;
+    --main-brown: #7B2D2D;
+    --main-bg: #f9f9f6;
+}
+
+.contact-page {
+    font-family: "Segoe UI", sans-serif;
+    padding: 40px 10%;
+}
+
+.intro {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.intro h1 {
+    font-size: 2rem;
+    color: var(--main-brown);
+    margin-bottom: 10px;
+}
+.intro p {
+    font-size: 1.1rem;
+}
+
+.contact-info {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+}
+
+.contact-info .stripe {
+    width: 8px;
+    background-color: var(--main-brown);
+    margin-right: 20px;
+}
+
+.contact-info .info-wrapper {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.contact-info .info {
+    flex: 1;
+}
+
+.contact-info h2 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+    color: var(--main-brown);
+}
+
+.contact-info .line {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.contact-info .line .icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+}
+.contact-info .line p {
+    margin: 0;
+    font-size: 1rem;
+}
+.contact-info .line .address-link,
+.contact-info a {
+    color: var(--main-green);
+    text-decoration: none;
+}
+.contact-info .line .address-link:hover,
+.contact-info a:hover {
+    text-decoration: underline;
+}
+.contact-info .line .address-link:visited,
+.contact-info a:visited {
+    color: var(--main-orange);
+}
+
+.contact-info .logo-container {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+}
+
+.contact-info .logo-container img {
+    width: auto;
+    height: 300px;
+    object-fit: contain;
+    display: block;
+}
+
+.map iframe {
+    display: block;
+    width: 100%;
+    height: 350px;
+    border: 0;
+    background: transparent;
+    border-radius: 8px;
+}
+
+.map {
+    margin-top: 40px;
+    margin-bottom: 40px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.gallery h2 {
+    font-size: 1.8rem;
+    color: var(--main-brown);
+    text-align: center;
+    margin-bottom: 20px;
+}
+.photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    gap: 10px;
+}
+.photos img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.formulaire {
+    margin: 60px 0;
+}
+.formulaire h2 {
+    font-size: 1.8rem;
+    color: var(--main-brown);
+    margin-bottom: 20px;
+}
+.formulaire form {
+    display: grid;
+    gap: 15px;
+}
+.formulaire input,
+.formulaire textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    resize: vertical;
+    overflow: auto;
+}
+.formulaire textarea[name="message"] {
+    min-height: 150px;
+}
+.formulaire button {
+    padding: 10px;
+    background-color: var(--main-green);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.formulaire button:hover {
+    background-color: var(--main-orange);
+}
+
+footer {
+    text-align: center;
+    padding: 20px 10%;
+    background: #f4f4f4;
+    font-size: 0.9rem;
+}
+
+.voirplus-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.voirplus-btn {
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--main-green);
+    text-decoration: none;
+}
+
+.voirplus-btn:hover {
+    color: var(--main-orange);
+}
+
+.pre-fade {
+  opacity: 0;
+  transform: translateY(12px);
+  will-change: opacity, transform;
+}
+
+.fade-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 450ms cubic-bezier(.2,.8,.2,1), transform 450ms cubic-bezier(.2,.8,.2,1);
+}
