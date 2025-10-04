@@ -1,0 +1,135 @@
+[
+    {
+        "id": "magasin",
+        "x": 3.0,
+        "y": 85.4,
+        "title": "Magasin de vente",
+        "text": "Je vous accueille au magasin où je vends uniquement les produits de l'exploitation : légumes de saison, fruits, plants et notre miel. Tout ce que vous trouverez ici a été récolté, soigné et transformé sur place selon nos principes de sol vivant et de saisonnalité. C'est le point de rencontre direct entre le champ et vous : zéro intermédiaire, goût et fraîcheur garantis.",
+        "images": [
+            "/magasin/photo1.jpg",
+            "/magasin/photo2.jpg"
+        ]
+    },
+    {
+        "id": "champs_bas",
+        "x": 26.0,
+        "y": 86.0,
+        "title": "Parcelle basse - rotations et diversité",
+        "text": "Ce champ bas est l'un de nos espaces de culture ouvert où alternent légumes, racines et feuilles selon les rotations. Ici, nous favorisons la diversité des plantes et le travail du sol vivant pour garder la terre fertile et résiliente. Vous y verrez la succession des cultures qui assure une production continue tout en protégeant la biodiversité.",
+        "images": [
+            "/champs_bas/photo1.jpg"
+        ]
+    },
+    {
+        "id": "horticulture_bas",
+        "x": 59.0,
+        "y": 86.0,
+        "title": "Aromatiques et compagnons (parcelle basse)",
+        "text": "Dans cette parcelle basse, nous cultivons principalement des aromatiques et des plantes utiles au potager - basilic, thym, menthe et compagnons utiles. Elles servent à la fois la cuisine et l'écosystème du champ (attirer pollinisateurs, repousser certains ravageurs). C'est un coin parfumé, utile pour la biodiversité et pour agrémenter vos paniers.",
+        "images": [
+            "/horticulture_bas/photo1.jpg",
+            "/horticulture_bas/photo2.jpg"
+        ]
+    },
+    {
+        "id": "champs_haut",
+        "x": 38.0,
+        "y": 37.0,
+        "title": "Parcelle haute - cultures d'été et conservation",
+        "text": "Le champ haut accueille des cultures plus variées selon la saison - légumes d'été, cucurbitacées et cultures de conservation pour l'hiver. Sa position lui confère un drainage et une exposition différents, ce qui complète notre palette de récoltes. On y travaille en rotations réfléchies pour maintenir la santé du sol et la régularité des récoltes.",
+        "images": [
+            "/champs_haut/photo1.jpg",
+            "/champs_haut/photo2.jpg"
+        ]
+    },
+    {
+        "id": "horticulture_haut",
+        "x": 59.0,
+        "y": 37.0,
+        "title": "Prairie mellifère (parcelle haute)",
+        "text": "Ce secteur haut est majoritairement une prairie mellifère : un espace fleuri et semi-naturel qui nourrit les abeilles et autres pollinisateurs. Au-delà de sa beauté, il joue un rôle-clé pour la pollinisation de nos vergers et potagers et pour la richesse biologique du site. C'est une zone pensée pour la nature - ressource et refuge.",
+        "images": [
+            "/horticulture_haut/photo1.jpg",
+            "/horticulture_haut/photo2.jpg",
+            "/horticulture_haut/photo3.jpg"
+        ]
+    },
+    {
+        "id": "pouponniere",
+        "x": 14.89,
+        "y": 64.3,
+        "title": "Pouponnière",
+        "text": "La pouponnière est l'endroit où naissent et grandissent nos jeunes plants avant d'être repiqués au champ. Nous y apportons un soin particulier : semences choisies, terre riche et gestes doux pour assurer des plants vigoureux. Vous pouvez aussi y acheter des pieds pour vos propres jardins - pour que chacun puisse cultiver sain et localement.",
+        "images": [
+            "/pouponniere/photo1.jpg",
+            "/pouponniere/photo2.jpg",
+            "/pouponniere/photo3.jpg"
+        ]
+    },
+    {
+        "id": "tunnel_1",
+        "x": 39.85,
+        "y": 64.3,
+        "title": "Premier tunnel de maraîchage",
+        "text": "Le premier tunnel permet d'anticiper les saisons et de protéger certaines cultures sensibles (tomates, jeunes plants, salades précoces). Il prolonge la période de récolte et sert d'espace d'essai pour des variétés adaptées au sol vivant. En intérieur, nous restons fidèles à nos pratiques : peu de perturbation, beaucoup d'observation.",
+        "images": [
+            "/tunnel_1/photo1.jpg",
+            "/tunnel_1/photo2.jpg"
+        ]
+    },
+    {
+        "id": "tunnel_2",
+        "x": 66.8,
+        "y": 64.3,
+        "title": "Second tunnel de maraîchage",
+        "text": "Le second tunnel complète le premier : il est dédié aux rotations et aux cultures nécessitant plus de chaleur ou protection (culture successive, semis tardifs). Cela nous donne de la flexibilité pour répondre aux demandes tout en réduisant la pression sur les parcelles en plein champ.",
+        "images": [
+            "/tunnel_2/photo1.jpg",
+            "/tunnel_2/photo2.jpg"
+        ]
+    },
+    {
+        "id": "marre",
+        "x": 78.0,
+        "y": 36.0,
+        "title": "Marre aux grenouilles",
+        "text": "La mare est un véritable cœur écologique : abri pour amphibiens, point d'eau pour la faune et régulateur naturel d'insectes. Elle participe activement à l'équilibre biologique du site et enrichit la chaîne alimentaire locale. Nous la voyons surtout comme une installation vivante, utile à la ferme et agréable pour les yeux.",
+        "images": [
+            "/marre/photo1.jpg",
+            "/marre/photo2.jpg"
+        ]
+    },
+    {
+        "id": "ruches",
+        "x": 59.0,
+        "y": 11.0,
+        "title": "Ruches",
+        "text": "Les ruches sont installées sur le domaine et gérées par Yann, apiculteur professionnel. Elles assurent la pollinisation de nos cultures et produisent un miel local que vous trouverez au magasin. Leur présence renforce la biodiversité et illustre notre travail en partenariat avec des acteurs de la nature.",
+        "images": [
+            "/ruches/photo1.jpg",
+            "/ruches/photo2.jpg",
+            "/ruches/photo3.jpg"
+        ]
+    },
+    {
+        "id": "verger",
+        "x": 13.93,
+        "y": 25.0,
+        "title": "Verger",
+        "text": "Le verger est une petite production d'arbres fruitiers (variétés locales) pensée pour compléter les légumes et le miel. Nous le gérons en mode à faible intervention, favorisant les cycles naturels et les floraisons riches en nectar. Les fruits récoltés vont directement dans vos paniers selon la saison.",
+        "images": [
+            "/verger/photo1.jpg",
+            "/verger/photo2.jpg"
+        ]
+    },
+    {
+        "id": "carre_peda",
+        "x": 12.27,
+        "y": 9.0,
+        "title": "Activités pédagogiques",
+        "text": "Le carré pédagogique accueille groupes scolaires, familles et visiteurs pour des animations et ateliers pratiques. L'objectif : transmettre des gestes concrets, sensibiliser au sol vivant et donner envie de cultiver soi-même. Ces sessions sont conçues pour être accessibles, ludiques et ancrées dans notre pratique authentique.",
+        "images": [
+            "/carre_peda/photo1.jpg"
+        ]
+    }
+]
