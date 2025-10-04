@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const container = document.querySelector('.slideshow');
     if (!container) return;
 
-    const resp = await fetch('../assets/img/index/manifest.json');
+    const resp = await fetch('./assets/img/index/manifest.json');
     const slides = await resp.json();
 
     for (let i = slides.length - 1; i > 0; i--) {
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     slides.forEach((img, index) => {
         const slide = document.createElement('div');
         slide.className = 'slide';
-        slide.style.backgroundImage = `url('../assets/img/index/${img}')`;
+        slide.style.backgroundImage = `url('./assets/img/index/${img}')`;
 
         const delay = durationPerSlide * index;
         slide.style.animation = `slideAnimation ${totalDuration}s infinite ease-in-out`;
@@ -76,3 +76,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 });
+
