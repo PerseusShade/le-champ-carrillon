@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    fetch('/components/header.html')
+    fetch('./components/header.html')
         .then(res => res.text())
         .then(html => {
             const container = document.getElementById('header');
@@ -115,3 +115,4 @@ function markActivePage(container, navLinks, btnContact) {
         }
     }
 }
+
