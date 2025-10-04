@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const IMG_PATH_POINTS_JSON = '/assets/img/plan/points/points.json';
+    const IMG_PATH_POINTS_JSON = './assets/img/plan/points/points.json';
     const img = document.querySelector('.plan-image');
     const frame = document.querySelector('.plan-frame');
     if (!img || !frame) return;

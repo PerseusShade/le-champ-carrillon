@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.querySelector(".activites-container");
     let animating = false;
 
-    const JSON_URL = "/assets/img/activites/activites.json";
+    const JSON_URL = "./assets/img/activites/activites.json";
 
     const initialDelay = 250;
     const stagger = 120;
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 panel.setAttribute("data-id", item.id ?? "");
                 panel.dataset.infoText = item.text ?? "";
 
-                const imagePath = item.image ? `/assets/img/activites/${item.image}` : "";
+                const imagePath = item.image ? `./assets/img/activites/${item.image}` : "";
                 if (imagePath) panel.style.backgroundImage = `url('${imagePath}')`;
 
                 const inner = document.createElement("div");

@@ -2,14 +2,14 @@
     'use strict';
 
     const IMAGES = [
-        "../assets/img/projet/img0.jpg",
-        "../assets/img/projet/img1.png",
-        "../assets/img/projet/img2.jpg",
-        "../assets/img/projet/img3.png",
-        "../assets/img/projet/img4.png",
-        "../assets/img/projet/img5.jpg",
-        "../assets/img/projet/img6.png",
-        "../assets/img/projet/img7.png",
+        "./assets/img/projet/img0.jpg",
+        "./assets/img/projet/img1.png",
+        "./assets/img/projet/img2.jpg",
+        "./assets/img/projet/img3.png",
+        "./assets/img/projet/img4.png",
+        "./assets/img/projet/img5.jpg",
+        "./assets/img/projet/img6.png",
+        "./assets/img/projet/img7.png",
     ];
     window.PROJET_IMAGES = IMAGES;
     const ATTACH_TO_VIEWPORT = true;
