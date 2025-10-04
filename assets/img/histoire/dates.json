@@ -1,0 +1,42 @@
+{
+    "2021": {
+        "text": "<p>Octobre 2021 marque le départ : prise de possession du terrain, défrichage et inventaire. Les analyses de sol et le bornage ont posé les bases techniques et éthiques de notre pratique en sol vivant. La préparation de la « couche chaude » a permis d'accélérer la mise en culture tout en respectant la structure du sol - c'est l'année fondatrice qui rend possibles toutes les récoltes suivantes.</p>",
+        "images": [
+            "2021/photo1.png",
+            "2021/photo2.png",
+            "2021/photo3.png"
+        ]
+    },
+    "2022": {
+        "text": "<p>2022 a été l'année de structuration : création de la société et ouverture à la vente qui ont donné un cadre durable au projet. L'ajout d'un second tunnel a augmenté notre capacité de production et d'anticipation des saisons. La création de la mare en novembre a aussi marqué notre engagement pour la biodiversité - productivité et écologie avancent ici main dans la main.</p>",
+        "images": [
+            "2022/photo1.jpg",
+            "2022/photo2.jpg",
+            "2022/photo3.jpg"
+        ]
+    },
+    "2023": {
+        "text": "<p>En 2023 nous avons renforcé les services écosystémiques du site : installation des ruches pour améliorer la pollinisation et la production de miel. L'accueil des premières classes a lancé notre volet pédagogique, essentiel pour transmettre le savoir-faire. L'ajout d'un troisième tunnel en novembre a apporté de la résilience face aux aléas climatiques et permis de diversifier encore les cultures.</p>",
+        "images": [
+            "2023/photo1.png",
+            "2023/photo2.png",
+            "2023/photo3.png"
+        ]
+    },
+    "2024": {
+        "text": "<p>2024 a été l'année de l'ancrage local et de l'agrandissement : construction d'une cabane de vente pour mieux accueillir le public et développer le circuit court, ateliers maraîchers réguliers et récupération de 1 800 m² de terrain pour étendre les cultures. La haie sèche réalisée en septembre a enrichi les habitats, favorisant la continuité écologique du site.</p>",
+        "images": [
+            "2024/photo1.jpg",
+            "2024/photo2.png",
+            "2024/photo3.png"
+        ]
+    },
+    "2025": {
+        "text": "<p>En 2025 nous avons consolidé la transmission et l'écologie du lieu : création des carrés potagers pour les ateliers et l'accueil des publics, poursuite des ateliers maraîchers et plantation en mai d'une prairie mellifère. Ces aménagements renforcent la connexion entre production, pédagogie et soutien aux pollinisateurs - essentiels pour l'avenir du Champ Carrillon.</p>",
+        "images": [
+            "2025/photo1.png",
+            "2025/photo2.jpg",
+            "2025/photo3.png"
+        ]
+    }
+}
