@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="400" height="400"
+     viewBox="0 0 4000 4000"
+     preserveAspectRatio="xMidYMid meet">
+  <path fill="black" stroke="none"
+        transform="translate(1000,0)"
+        d="M -38 3777 c -69 -137 -106 -353 -106 -620 c 0 -666 275 -1454 682 -1961 c 324 -403 681 -560 967 -425 c 352 166 476 738 381 1435 l -1191 1493 L 36 3983 z"/>
+</svg>
