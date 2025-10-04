@@ -23,7 +23,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url('/assets/img/accueil/hero.png');
+    background-image: url('../assets/img/accueil/hero.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -162,4 +162,5 @@ body.preload .text-box,
 body.preload .avatar {
   transition: none !important;
   animation: none !important;
+
 }
