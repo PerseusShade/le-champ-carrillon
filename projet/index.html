@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Champ Carillon — Notre projet</title>
+    <meta name="description" content="Présentation du projet Le Champ Carillon, maraîchage sur sol vivant.">
+    <link rel="icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../assets/css/header.css">
+    <link rel="stylesheet" href="../assets/css/projet.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+</head>
+<body>
+    <div id="header"></div>
+    <script src="../assets/js/loadHeader.js" defer></script>
+
+    <canvas id="petal-canvas" style="position:fixed; inset:0; pointer-events:none;"></canvas>
+
+    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 850 868" preserveAspectRatio="xMidYMid meet">
+        <g class="petales">
+            <g transform="translate(425,434) scale(0.1,-0.1)" fill="transparent" stroke="none">
+                <use class="petal petal-0" href="#petal" transform="rotate(0)   rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal petal-1" href="#petal" transform="rotate(-45) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal petal-2" href="#petal" transform="rotate(-90) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal petal-3" href="#petal" transform="rotate(-135) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal petal-4" href="#petal" transform="rotate(-180) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal petal-5" href="#petal" transform="rotate(-225) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal petal-6" href="#petal" transform="rotate(-270) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal petal-7" href="#petal" transform="rotate(-315) rotate(180,0,3800) translate(0,3000)"/>
+            </g>
+
+            <g transform="translate(425,434) scale(0.1,-0.1)" fill="transparent" stroke="none">
+                <use class="petal-zone" href="#petal_zone" transform="rotate(0) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal-zone" href="#petal_zone" transform="rotate(-45) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal-zone" href="#petal_zone" transform="rotate(-90) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal-zone" href="#petal_zone" transform="rotate(-135) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal-zone" href="#petal_zone" transform="rotate(-180) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal-zone" href="#petal_zone" transform="rotate(-225) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal-zone" href="#petal_zone" transform="rotate(-270) rotate(180,0,3800) translate(0,3000)"/>
+                <use class="petal-zone" href="#petal_zone" transform="rotate(-315) rotate(180,0,3800) translate(0,3000)"/>
+            </g>
+
+            <g transform="translate(425,434)" font-family="Segoe UI" text-anchor="middle">
+                <text class="petal-text petal-text-0" text-anchor="start" transform="rotate(150) translate(0,110) rotate(100)">
+                    Patrimoines
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Préservation des terres agricoles</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Maintiens des espaces verts</tspan>
+                </text>
+                <text class="petal-text petal-text-1" text-anchor="start" transform="rotate(195) translate(0,110) rotate(100)">
+                    Entretien des terres
+                    <tspan class="petal-desc" x="0" dy="1.2em">• MSV</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Agroécologie</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Biodynamie</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Permaculture</tspan>
+                </text>
+                <text class="petal-text petal-text-2" text-anchor="start" transform="rotate(240) translate(0,110) rotate(100)">
+                    Environnement
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Création d'écosystèmes</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• 0 pesticide</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• 0 énergie fossile</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Circuit court</tspan>
+                </text>
+                <text class="petal-text petal-text-3" text-anchor="start" transform="rotate(285) translate(0,110) rotate(100)">
+                    Outils et Technologie
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Outil à main</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Énergie solaire</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Cogénération</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Réseaux sociaux</tspan>
+                </text>
+                <text class="petal-text petal-text-4" text-anchor="start" transform="rotate(-30) translate(0,110) rotate(100)">
+                    Culture et éducation
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Visites pédagogiques</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Ateliers maraichages</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Transmission de savoir</tspan>
+                </text>
+                <text class="petal-text petal-text-5" text-anchor="start" transform="rotate(15) translate(0,110) rotate(100)">
+                    Santé et bien être
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Prophylaxie</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Aromathérapie</tspan>
+                </text>
+                <text class="petal-text petal-text-6" text-anchor="start" transform="rotate(60) translate(0,110) rotate(100)">
+                    Finances et économie
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Prix juste</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Recyclage</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Économie de l'eau</tspan>
+                </text>
+                <text class="petal-text petal-text-7" text-anchor="start" transform="rotate(105) translate(0,110) rotate(100)">
+                    Communautés
+                    <tspan class="petal-desc" x="0" dy="1.2em">• Partenaires locaux :</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em" dx="20">collectivités, associations, artisans</tspan>
+                    <tspan class="petal-desc" x="0" dy="1.2em" dx="20">et fournisseurs locaux</tspan>
+                </text>
+            </g>
+
+            <defs>
+                <path id="petal" d="M0 3800 c-69 -137 -106 -353 -106 -620 0 -666 275 -1454 682
+                    -1961 324 -403 681 -560 967 -425 352 166 476 738 302 1384 l-22 81 -86 40
+                    c-47 22 -87 39 -89 37 -2 -2 2 -49 9 -103 19 -156 16 -588 -5 -704 -42 -226
+                    -90 -345 -176 -430 -37 -36 -70 -60 -97 -68 -315 -93 -811 399 -1125 1113
+                    -121 276 -221 613 -259 873 -47 327 -36 532 47 815 11 37 -18 15 -42 -32z"/>
+
+                <path id="petal_zone" d="M -38 3777 c -69 -137 -106 -353 -106 -620 c 0 -666 275 -1454 682 -1961 c 324 -403 681 -560 967 -425 c 352 166 545 723 381 1435 l -1186 1493 L 36 3983 z"/>
+            </defs>
+        </g>
+
+        <image class="logo-center" href="../assets/img/logo/logo_rec.png" x="425" y="429" width="153" height="156.24" transform="translate(-76.5,-78.12)"/>
+    </svg>
+
+    <div id="keywords-overlay" aria-hidden="true">
+        <div class="keyword keyword-0">Résilience</div>
+        <div class="keyword keyword-1">Durabilité</div>
+        <div class="keyword keyword-2">Biodiversité</div>
+        <div class="keyword keyword-3">Ecologie</div>
+        <div class="keyword keyword-4">Donner du Sens</div>
+        <div class="keyword keyword-5">Ethique</div>
+        <div class="keyword keyword-6">Lien</div>
+        <div class="keyword keyword-7">Proximité</div>
+    </div>
+
+    <script src="../assets/js/projet_full.js" defer></script>
+    <script src="../assets/js/projet_canva.js" defer></script>
+    <script src="../assets/js/projet_morph.js" defer></script>
+</body>
+</html>
