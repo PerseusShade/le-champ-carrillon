@@ -5,7 +5,7 @@ from babel.dates import format_date
 
 BASE_DIR    = Path(__file__).resolve().parent.parent.parent
 INPUT_BASE  = BASE_DIR / "assets" / "actualites"
-OUTPUT_FILE = BASE_DIR / "pages" / "actualites.html"
+OUTPUT_FILE = BASE_DIR / "actualites" / "index.html"
 
 locale.setlocale(locale.LC_TIME, "fr_FR.UTF-8")
 
@@ -93,3 +93,4 @@ with OUTPUT_FILE.open("w", encoding="utf-8") as f:
 """)
 
 print(f"Généré -> {OUTPUT_FILE}")
+
