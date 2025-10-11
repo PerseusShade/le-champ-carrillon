@@ -1,4 +1,4 @@
-:root{
+:root {
     --main-green: #318C57;
     --main-orange: #F7931E;
     --main-brown: #7B2D2D;
@@ -7,6 +7,13 @@
 
 *, *::before, *::after {
     box-sizing: border-box;
+}
+
+html, body {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 .hero {
@@ -78,7 +85,6 @@ body.animate-ready .white-overlay {
     --side-padding: clamp(12px, 3vw, 48px);
     --vertical-padding: clamp(20px, 3.5vw, 56px);
     --border-w: clamp(2px, 0.4vw, 3px);
-
     position: relative;
     max-width: 920px;
     width: calc(100% - 40px);
@@ -102,7 +108,6 @@ body.animate-ready .white-overlay {
 .avatar {
     --avatar-size: clamp(64px, 9vw, 120px);
     --avatar-border: clamp(3px, 0.6vw, 4px);
-
     position: absolute;
     top: calc(var(--avatar-size) * -0.45);
     left: calc(var(--side-padding) - var(--border-w));
@@ -150,7 +155,7 @@ body.animate-ready .white-overlay {
 .text-content h1 {
     margin: 20px 0 20px 0;
     color: var(--main-brown);
-    font-size: 2rem;
+    font-size: clamp(1.4rem, 4vw, 2rem);
     line-height: 1.1;
     font-weight: 700;
 }
@@ -158,10 +163,13 @@ body.animate-ready .white-overlay {
 .text-content p {
     margin-top: 20px;
     color: #333;
-    font-size: 1rem;
-    line-height: 1.6;
+    font-size: clamp(0.9rem, 2.8vw, 1rem);
+    line-height: 1.55;
     text-align: justify;
     padding-inline: clamp(4px, 1.5vw, 12px);
+    hyphens: auto;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 @media (max-width: 420px) {
@@ -172,13 +180,13 @@ body.animate-ready .white-overlay {
     }
 
     .text-content h1 {
-        font-size: 1.4rem;
+        font-size: 1.25rem;
         margin: 12px 0;
     }
 
     .text-content p {
         margin-top: 12px;
-        font-size: 0.98rem;
+        font-size: 0.88rem;
         line-height: 1.45;
     }
 
