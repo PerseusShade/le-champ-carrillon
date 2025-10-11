@@ -3,6 +3,10 @@
     --main-orange: #F7931E;
     --main-brown: #7B2D2D;
     --main-bg: #f9f9f6;
+
+    --gallery-gap: 28px;
+    --gallery-padding-inline: 10%;
+    --min-thumb: 180px;
 }
 
 body {
@@ -11,8 +15,9 @@ body {
 }
 
 .galerie {
-    padding: 40px 10%;
+    padding: 40px var(--gallery-padding-inline);
 }
+
 .galerie-title {
     text-align: center;
     color: var(--main-brown);
@@ -22,8 +27,8 @@ body {
 
 .photos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 28px;
+    grid-template-columns: repeat(auto-fit, minmax(var(--min-thumb), 1fr));
+    gap: var(--gallery-gap);
 }
 
 .gallery-item {
@@ -47,10 +52,13 @@ body {
 .gallery-item img {
     display: block;
     width: 100%;
-    height: 230px;
+    height: auto;
+    aspect-ratio: 4 / 3;
     object-fit: cover;
     transition: filter 0.3s;
     filter: grayscale(10%) contrast(1.08);
+
+    height: clamp(130px, 20vw, 230px);
 }
 
 .gallery-item:hover img {
@@ -63,13 +71,49 @@ body {
     transition: opacity 900ms cubic-bezier(.2,.9,.3,1), transform 900ms cubic-bezier(.2,.9,.3,1);
     will-change: opacity, transform;
 }
-
 .fade-in.show {
     opacity: 1;
     transform: translateY(0);
 }
-
 .galerie-title.fade-in {
     transition-duration: 520ms;
     transition-delay: 0ms;
+}
+
+@media (max-width: 900px) {
+    :root {
+        --gallery-gap: 20px;
+        --gallery-padding-inline: 8%;
+        --min-thumb: 160px;
+    }
+    .galerie {
+        padding: 32px var(--gallery-padding-inline);
+    }
+}
+
+@media (max-width: 600px) {
+    :root {
+        --gallery-gap: 12px;
+        --gallery-padding-inline: 6%;
+        --min-thumb: 0px;
+    }
+
+    .galerie {
+        padding: 24px var(--gallery-padding-inline);
+    }
+
+    .photos-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .gallery-item {
+        border-radius: 12px;
+    }
+
+    .gallery-item img {
+        aspect-ratio: 4 / 3;
+        height: auto;
+        min-height: 110px;
+        height: clamp(110px, 28vw, 180px);
+    }
 }
