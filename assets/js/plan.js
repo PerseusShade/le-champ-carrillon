@@ -22,30 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
     tooltip.setAttribute('role', 'tooltip');
     document.body.appendChild(tooltip);
 
-    const galleryOverlay = document.createElement('div');
-    galleryOverlay.className = 'gallery-overlay';
-    galleryOverlay.innerHTML = `
-        <div class="gallery-close" title="Fermer">&times;</div>
-        <div class="gallery-nav gallery-prev">&#10094;</div>
-        <img class="main-view" src="" alt="">
-        <div class="gallery-nav gallery-next">&#10095;</div>
-        <div class="gallery-carousel">
-            <div class="gallery-carousel-inner"></div>
-        </div>
-    `;
-    document.body.appendChild(galleryOverlay);
-
-    const baseOverlayZ = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--overlay-z')) || 999;
-    galleryOverlay.style.zIndex = String(baseOverlayZ + 100);
-
-    galleryOverlay.style.display = 'none';
-    galleryOverlay.style.opacity = 0;
-    galleryOverlay.style.transition = 'opacity 200ms ease';
-    const mainImg = galleryOverlay.querySelector('.main-view');
-    const closeBtn = galleryOverlay.querySelector('.gallery-close');
-    const prevBtn = galleryOverlay.querySelector('.gallery-prev');
-    const nextBtn = galleryOverlay.querySelector('.gallery-next');
-    const carouselInner = galleryOverlay.querySelector('.gallery-carousel-inner');
+    const galleryOverlayEl = document.querySelector('.gallery-overlay');
+    if (galleryOverlayEl) {
+        const baseOverlayZ = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--overlay-z')) || 999;
+        galleryOverlayEl.style.zIndex = String(baseOverlayZ + 100);
+        galleryOverlayEl.style.display = galleryOverlayEl.style.display || 'none';
+        galleryOverlayEl.style.opacity = galleryOverlayEl.style.opacity || 0;
+        galleryOverlayEl.style.transition = galleryOverlayEl.style.transition || 'opacity 200ms ease';
+    }
 
     function pxToNumber(px) { return px ? parseFloat(String(px).replace('px',''))||0 : 0; }
 
@@ -163,8 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let galleryImages = [];
     let galleryCurrentIndex = 0;
 
-    function clearGallery() {
-        carouselInner.innerHTML = '';
+    function clearGalleryLocal() {
         galleryImages = [];
         galleryCurrentIndex = 0;
     }
@@ -172,75 +155,41 @@ document.addEventListener('DOMContentLoaded', () => {
     function showGalleryImage(index) {
         galleryCurrentIndex = index;
         if (!galleryImages[galleryCurrentIndex]) return;
-
-        mainImg.style.opacity = 0;
-        setTimeout(() => {
-            mainImg.src = galleryImages[galleryCurrentIndex];
-            mainImg.alt = `Image ${galleryCurrentIndex + 1}`;
-            mainImg.style.opacity = 1;
-        }, 80);
-
-        const thumbs = Array.from(carouselInner.querySelectorAll('img'));
-        thumbs.forEach(thumb => {
-            thumb.classList.toggle('active', parseInt(thumb.dataset.index, 10) === galleryCurrentIndex);
-        });
-
-        const wrapperW = galleryOverlay.querySelector('.gallery-carousel').clientWidth || window.innerWidth;
-        const active = thumbs[galleryCurrentIndex];
-        if (!active) return;
-        const thumbW = active.getBoundingClientRect().width || 80;
-        const pad = Math.max((wrapperW - thumbW) / 2, 0);
-        carouselInner.style.paddingLeft = `${pad}px`;
-        carouselInner.style.paddingRight = `${pad}px`;
-        const offset = active.offsetLeft + thumbW / 2;
-        const translateX = wrapperW / 2 - offset;
-        carouselInner.style.transform = `translateX(${translateX}px)`;
+        if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
+            window.GalleryOverlay.open(galleryCurrentIndex, galleryImages, { enableScroll: false });
+        }
     }
 
     function openGalleryWith(images, startIndex = 0) {
         if (!Array.isArray(images) || images.length === 0) return;
-        clearGallery();
         galleryImages = images.slice();
-        galleryImages.forEach((src, idx) => {
-            const t = document.createElement('img');
-            t.src = src;
-            t.dataset.index = idx;
-            t.alt = `vignette ${idx+1}`;
-            t.addEventListener('click', (e) => {
-                e.stopPropagation();
-                showGalleryImage(idx);
-            });
-            carouselInner.appendChild(t);
-        });
-
-        galleryOverlay.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        requestAnimationFrame(() => {
-            galleryOverlay.style.opacity = 1;
-            showGalleryImage(Math.min(Math.max(0, startIndex), galleryImages.length - 1));
-        });
+        galleryCurrentIndex = Math.min(Math.max(0, startIndex), galleryImages.length - 1);
+        if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
+            window.GalleryOverlay.open(galleryCurrentIndex, galleryImages, { enableScroll: false });
+        }
     }
 
     function closeGallery() {
-        galleryOverlay.style.opacity = 0;
-        galleryOverlay.addEventListener('transitionend', function hide() {
-            galleryOverlay.style.display = 'none';
-            document.body.style.overflow = '';
-            galleryOverlay.removeEventListener('transitionend', hide);
-            clearGallery();
-        }, { once: true });
+        if (window.GalleryOverlay && typeof window.GalleryOverlay.close === 'function') {
+            window.GalleryOverlay.close();
+        }
+        clearGalleryLocal();
     }
 
     function navigateGallery(direction) {
-        if (galleryImages.length === 0) return;
+        if (!galleryImages || galleryImages.length === 0) return;
         galleryCurrentIndex = (galleryCurrentIndex + direction + galleryImages.length) % galleryImages.length;
         showGalleryImage(galleryCurrentIndex);
     }
 
-    closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeGallery(); });
-    prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateGallery(-1); });
-    nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateGallery(1); });
-    galleryOverlay.addEventListener('click', (e) => { if (e.target === galleryOverlay) closeGallery(); });
+    function attachThumbClick(box, images, idx) {
+        box.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openGalleryWith(images, idx);
+        });
+    }
+
+    closeGallery();
 
     async function loadPoints() {
         try {
@@ -447,11 +396,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            closeGallery();
+            if (window.GalleryOverlay && typeof window.GalleryOverlay.close === 'function') window.GalleryOverlay.close();
             fadeOutExistingContent();
-        } else if (e.key === 'ArrowRight' && galleryOverlay.style.display === 'flex') {
+        } else if (e.key === 'ArrowRight' && galleryImages.length && document.querySelector('.gallery-overlay') && document.querySelector('.gallery-overlay').style.display === 'flex') {
             navigateGallery(1);
-        } else if (e.key === 'ArrowLeft' && galleryOverlay.style.display === 'flex') {
+        } else if (e.key === 'ArrowLeft' && galleryImages.length && document.querySelector('.gallery-overlay') && document.querySelector('.gallery-overlay').style.display === 'flex') {
             navigateGallery(-1);
         }
     });

@@ -163,140 +163,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     })();
 
-
     const allImages = document.querySelectorAll('.post-photos img');
     if (!allImages.length) return;
 
-    const overlay = document.createElement('div');
-    overlay.className = 'gallery-overlay';
-    overlay.innerHTML = `
-        <div class="gallery-close" title="Fermer">&times;</div>
-        <div class="gallery-nav gallery-prev">&#10094;</div>
-        <img class="main-view" src="" alt="">
-        <div class="gallery-nav gallery-next">&#10095;</div>
-        <div class="gallery-carousel">
-            <div class="gallery-carousel-inner"></div>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-    overlay.style.display = 'none';
-    overlay.style.opacity = 0;
-    overlay.style.transition = 'opacity 200ms ease';
-
-    const mainImg = overlay.querySelector('.main-view');
-    const closeBtn = overlay.querySelector('.gallery-close');
-    const prevBtn = overlay.querySelector('.gallery-prev');
-    const nextBtn = overlay.querySelector('.gallery-next');
-    const carouselInner = overlay.querySelector('.gallery-carousel-inner');
-
-    let currentIndex = 0;
-    let currentGroup = [];
-
-    function showImage(index) {
-        currentIndex = index;
-
-        const thumbs = carouselInner.querySelectorAll('img');
-        const sourceImg = currentGroup[currentIndex];
-
-        mainImg.style.opacity = 0;
-        setTimeout(() => {
-            mainImg.src = sourceImg.src;
-            mainImg.alt = sourceImg.alt;
-            mainImg.style.opacity = 1;
-        }, 100);
-
-        thumbs.forEach(thumb => {
-            thumb.classList.toggle('active', parseInt(thumb.dataset.index) === currentIndex);
-        });
-
-        requestAnimationFrame(() => {
-            const wrapperW = overlay.querySelector('.gallery-carousel').clientWidth;
-            const active = thumbs[currentIndex];
-            const thumbW = active.getBoundingClientRect().width;
-            const pad = (wrapperW - thumbW) / 2;
-
-            carouselInner.style.paddingLeft = `${pad}px`;
-            carouselInner.style.paddingRight = `${pad}px`;
-
-            const offset = active.offsetLeft + thumbW / 2;
-            const translateX = wrapperW / 2 - offset;
-            carouselInner.style.transform = `translateX(${translateX}px)`;
-        });
-    }
-
-    function openOverlay(index, group) {
-        currentGroup = group;
-        currentIndex = index;
-
-        carouselInner.innerHTML = '';
-
-        group.forEach((img, idx) => {
-            const thumb = document.createElement('img');
-            thumb.src = img.src;
-            thumb.dataset.index = idx;
-            thumb.addEventListener('click', e => {
-                e.stopPropagation();
-                showImage(idx);
-            });
-            carouselInner.appendChild(thumb);
-        });
-
-        overlay.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-
-        requestAnimationFrame(() => {
-            overlay.style.opacity = 1;
-            showImage(index);
-        });
-    }
-
-    function closeOverlay() {
-        overlay.style.opacity = 0;
-        overlay.addEventListener('transitionend', () => {
-            overlay.style.display = 'none';
-            document.body.style.overflow = '';
-        }, { once: true });
-    }
-
-    function navigate(dir) {
-        currentIndex = (currentIndex + dir + currentGroup.length) % currentGroup.length;
-        showImage(currentIndex);
-    }
-
-    closeBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        closeOverlay();
-    });
-
-    prevBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        navigate(-1);
-    });
-
-    nextBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        navigate(1);
-    });
-
-    overlay.addEventListener('click', e => {
-        if (e.target === overlay) closeOverlay();
-    });
-
-    document.addEventListener('keydown', e => {
-        if (overlay.style.display === 'flex') {
-            if (e.key === 'ArrowRight') navigate(1);
-            else if (e.key === 'ArrowLeft') navigate(-1);
-            else if (e.key === 'Escape') closeOverlay();
-        }
-    });
-
     allImages.forEach(img => {
         const postPhotos = img.closest('.post-photos');
-        const groupImages = [...postPhotos.querySelectorAll('img')];
+        const groupImages = Array.from(postPhotos.querySelectorAll('img'));
         const indexInGroup = groupImages.indexOf(img);
-
         img.addEventListener('click', () => {
-            openOverlay(indexInGroup, groupImages);
+            if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
+                window.GalleryOverlay.open(indexInGroup, groupImages, { enableScroll: false });
+            }
         });
     });
 });
