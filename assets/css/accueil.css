@@ -87,7 +87,7 @@ body.animate-ready .white-overlay {
     --border-w: clamp(2px, 0.4vw, 3px);
     position: relative;
     max-width: 920px;
-    width: calc(100% - 40px);
+    width: calc(100% - 20px);
     background: rgba(255,255,255,0.9);
     border: var(--border-w) solid var(--main-green);
     padding: var(--vertical-padding) var(--side-padding);
