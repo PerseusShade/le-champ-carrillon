@@ -533,6 +533,10 @@
 
         const getEffectiveHeaderHeightPx = () => {
             try {
+                if (document.documentElement.classList.contains('position-compact')) return 0;
+            } catch(e){}
+
+            try {
                 const raw = getComputedStyle(document.documentElement).getPropertyValue('--header-height') || '';
                 const v = parseFloat(raw);
                 if (Number.isFinite(v) && v > 0) return Math.round(v);
