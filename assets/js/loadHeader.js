@@ -752,5 +752,74 @@
 
     bootstrap();
 
+    function _cleanupOverlaysAndBurgers() {
+        try {
+            const overlay = document.getElementById('menu-overlay');
+            const fade = document.getElementById('page-fade');
+            const fadeLogo = document.getElementById('page-fade-logo');
+            const burgers = Array.from(document.querySelectorAll('.burger-btn'));
+
+            const cleanEl = (el) => {
+                if (!el) return;
+                el.classList.remove('open', 'active', 'overlay-above');
+                try { el.setAttribute('aria-hidden', 'true'); } catch(e){}
+                try {
+                    el.style.removeProperty('z-index');
+                    el.style.removeProperty('top');
+                    el.style.removeProperty('height');
+                    el.style.removeProperty('width');
+                    el.style.removeProperty('left');
+                } catch(e){}
+            };
+
+            [overlay, fade, fadeLogo].forEach(cleanEl);
+
+            burgers.forEach(b => {
+                try { b.classList.remove('active'); } catch(e){}
+                try { b.setAttribute('aria-expanded', 'false'); } catch(e){}
+                try { b.style.removeProperty('pointer-events'); } catch(e){}
+            });
+
+            try { document.documentElement.classList.remove('menu-open'); } catch(e){}
+            try { document.body.style.overflow = ''; } catch(e){}
+
+            [fade, fadeLogo].forEach(f => {
+                try {
+                    if (!f) return;
+                    const saved = f._burgerReset;
+                    if (!saved || !saved.length) return;
+                    saved.forEach(item => {
+                        try {
+                            if (item.prevZExists) {
+                                item.el.style.setProperty('z-index', item.prevZ, item.prevZPrio || '');
+                            } else {
+                                item.el.style.removeProperty('z-index');
+                            }
+                        } catch(e){}
+                        try {
+                            if (item.prevPEExists) {
+                                item.el.style.setProperty('pointer-events', item.prevPE, item.prevPEPrio || '');
+                            } else {
+                                item.el.style.removeProperty('pointer-events');
+                            }
+                        } catch(e){}
+                    });
+                    try { delete f._burgerReset; } catch(e){}
+                } catch(e){}
+            });
+
+            try { updateHeaderHeight(); } catch(e){}
+            try { checkHeaderMode(); } catch(e){}
+        } catch(e) {}
+    }
+
+    window.addEventListener('pageshow', (ev) => {
+        _cleanupOverlaysAndBurgers();
+    });
+
+    window.addEventListener('popstate', () => {
+        _cleanupOverlaysAndBurgers();
+    });
+
     window.__HEADER_SIMPLE = { updateHeaderHeight, checkHeaderMode, _initial: () => INITIAL_HEADER_HEIGHT_PX };
 })();
