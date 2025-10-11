@@ -124,113 +124,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const allImages = grid.querySelectorAll('img');
-            let currentIndex = 0;
-
-            const overlay = document.createElement('div');
-            overlay.className = 'gallery-overlay';
-            overlay.innerHTML = `
-                <div class="gallery-close" title="Fermer">&times;</div>
-                <div class="gallery-nav gallery-prev">&#10094;</div>
-                <img class="main-view" src="" alt="">
-                <div class="gallery-nav gallery-next">&#10095;</div>
-                <div class="gallery-carousel">
-                    <div class="gallery-carousel-inner"></div>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-            overlay.style.display = 'none';
-            overlay.style.opacity = 0;
-            overlay.style.transition = 'opacity 200ms ease';
-
-            const mainImg = overlay.querySelector('.main-view');
-            const closeBtn = overlay.querySelector('.gallery-close');
-            const prevBtn = overlay.querySelector('.gallery-prev');
-            const nextBtn = overlay.querySelector('.gallery-next');
-            const carousel = overlay.querySelector('.gallery-carousel');
-            const carouselInner = overlay.querySelector('.gallery-carousel-inner');
 
             allImages.forEach((img, idx) => {
-                const thumb = document.createElement('img');
-                thumb.src = img.src;
-                thumb.dataset.index = idx;
-                thumb.addEventListener('click', e => {
-                    e.stopPropagation();
-                    showImage(idx);
+                img.addEventListener('click', () => {
+                    if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
+                        window.GalleryOverlay.open(idx, Array.from(allImages), { enableScroll: true });
+                    }
                 });
-                carouselInner.appendChild(thumb);
             });
 
-            function showImage(index) {
-                currentIndex = index;
-                if (!allImages[currentIndex]) return;
-
-                mainImg.style.opacity = 0;
-                setTimeout(() => {
-                    mainImg.src = allImages[currentIndex].src;
-                    mainImg.alt = allImages[currentIndex].alt;
-                    mainImg.style.opacity = 1;
-                }, 100);
-
-                const thumbs = carouselInner.querySelectorAll('img');
-                thumbs.forEach(thumb => {
-                    thumb.classList.toggle('active', parseInt(thumb.dataset.index, 10) === currentIndex);
-                });
-
-                const wrapperW = carousel.clientWidth || window.innerWidth;
-                const active = thumbs[currentIndex];
-                if (!active) return;
-                const thumbW = active.getBoundingClientRect().width || 80;
-                const pad = Math.max((wrapperW - thumbW) / 2, 0);
-                carouselInner.style.paddingLeft = `${pad}px`;
-                carouselInner.style.paddingRight = `${pad}px`;
-                const offset = active.offsetLeft + thumbW / 2;
-                const translateX = wrapperW / 2 - offset;
-                carouselInner.style.transform = `translateX(${translateX}px)`;
+            if (window.GalleryOverlay && typeof window.GalleryOverlay.attachFromNodeList === 'function') {
+                window.GalleryOverlay.attachFromNodeList(allImages, { enableScroll: true });
             }
-
-            function openOverlay(index) {
-                showImage(index);
-                overlay.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-                requestAnimationFrame(() => {
-                    overlay.style.opacity = 1;
-                    showImage(index);
-                });
-            }
-
-            function closeOverlay() {
-                overlay.style.opacity = 0;
-                overlay.addEventListener('transitionend', hideOverlay, { once: true });
-            }
-
-            function hideOverlay() {
-                overlay.style.display = 'none';
-                document.body.style.overflow = '';
-            }
-
-            function navigate(direction) {
-                currentIndex = (currentIndex + direction + allImages.length) % allImages.length;
-                showImage(currentIndex);
-            }
-
-            allImages.forEach((img, idx) => {
-                img.addEventListener('click', () => openOverlay(idx));
-            });
-
-            closeBtn.addEventListener('click', e => { e.stopPropagation(); closeOverlay(); });
-            prevBtn.addEventListener('click', e => { e.stopPropagation(); navigate(-1); });
-            nextBtn.addEventListener('click', e => { e.stopPropagation(); navigate(1); });
-
-            overlay.addEventListener('click', e => {
-                if (e.target === overlay) closeOverlay();
-            });
-
-            document.addEventListener('keydown', (e) => {
-                if (overlay.style.display === 'flex') {
-                    if (e.key === 'ArrowRight') navigate(1);
-                    if (e.key === 'ArrowLeft') navigate(-1);
-                    if (e.key === 'Escape') closeOverlay();
-                }
-            });
         })
 });
