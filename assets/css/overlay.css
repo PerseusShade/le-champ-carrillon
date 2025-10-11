@@ -2,25 +2,31 @@
     position: fixed;
     left: 0;
     right: 0;
-    top: env(safe-area-inset-top, var(--header-height, 0px));
-    height: calc(100dvh - env(safe-area-inset-top, var(--header-height, 0px)) - env(safe-area-inset-bottom, 0px));
+    top: var(--header-height, 0px);
+    bottom: 0;
+    --overlay-margin: 24px;
+    --nav-space: 88px;
+    padding-top: calc(var(--overlay-margin) + env(safe-area-inset-top));
+    padding-bottom: calc(var(--overlay-margin) + env(safe-area-inset-bottom));
+    padding-left: var(--overlay-margin);
+    padding-right: var(--overlay-margin);
+    box-sizing: border-box;
     background: rgba(0, 0, 0, 0.95);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 99999 !important;
+    z-index: 9999 !important;
     transition: opacity 0.3s ease;
-    overflow: hidden;
-    --overlay-padding: 24px;
-    padding-top: calc(env(safe-area-inset-top, 0px) + 8px);
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    -webkit-transform: translateZ(0);
 }
 
 .gallery-overlay .gallery-close {
     position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + 6px) !important;
-    right: calc(var(--overlay-padding) + 1rem);
+    top: calc(6px + env(safe-area-inset-top));
+    right: calc(16px + env(safe-area-inset-right));
     font-size: 3rem;
     color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
@@ -28,49 +34,36 @@
     -ms-user-select: none;
     user-select: none;
     transition: color 0.2s ease, transform 0.2s ease;
-    z-index: 100020;
+    z-index: 10010;
 }
 
 .gallery-overlay .gallery-close:hover {
     color: rgba(255, 255, 255, 1);
 }
 
-:root {
-    --gallery-nav-width: 88px;
-    --carousel-height: 96px;
-}
-
 .main-view {
     display: block;
     width: auto;
     height: auto;
-    max-width: calc(100% - (var(--gallery-nav-width) * 2) - (var(--overlay-padding) * 2));
-    max-height: calc(100% - (var(--overlay-padding) * 2) - var(--carousel-height));
-    object-fit: contain;
+    max-width: calc(100% - (var(--nav-space) * 2) - (var(--overlay-margin) * 2));
+    max-height: calc(100% - (var(--overlay-margin) * 2) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    margin: 0 var(--nav-space);
     border-radius: 8px;
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
-    transition: opacity 150ms ease, transform 120ms ease;
-    touch-action: pan-y;
-    -webkit-user-select: none;
-    user-select: none;
-    z-index: 100010;
-    margin: 0 calc(var(--gallery-nav-width) + var(--overlay-padding));
-    max-inline-size: calc(100% - (var(--gallery-nav-width) * 2) - (var(--overlay-padding) * 2));
-}
-
-.gallery-overlay img.main-view {
-    background-color: transparent;
+    transition: opacity 150ms ease;
+    object-fit: contain;
+    max-inline-size: calc(100% - (var(--nav-space) * 2));
+    max-block-size: calc(100% - (var(--overlay-margin) * 2));
+    z-index: 10005;
 }
 
 .gallery-carousel {
     position: absolute;
-    bottom: calc(env(safe-area-inset-bottom, 15px) + 12px);
+    bottom: calc(12px + env(safe-area-inset-bottom));
     width: 100%;
     overflow: hidden;
     pointer-events: none;
-    display: flex;
-    justify-content: center;
-    z-index: 100015;
+    z-index: 10002;
 }
 
 .gallery-carousel-inner {
@@ -79,7 +72,6 @@
     padding: 0;
     pointer-events: all;
     transition: transform 0.3s ease;
-    align-items: center;
 }
 
 .gallery-carousel-inner img {
@@ -102,11 +94,6 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: var(--gallery-nav-width);
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-size: 3rem;
     color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
@@ -114,53 +101,22 @@
     -ms-user-select: none;
     user-select: none;
     transition: color 0.2s ease;
-    z-index: 100025;
-    pointer-events: all;
+    z-index: 10008;
+    padding: 8px;
     background: transparent;
+    border-radius: 8px;
 }
 
 .gallery-nav:hover {
     color: rgba(255, 255, 255, 1);
-    transform: translateY(-50%) scale(1.02);
 }
 
 .gallery-prev {
-    left: 0;
-    padding-left: calc(var(--overlay-padding) / 2);
-    text-align: left;
+    left: calc(8px + env(safe-area-inset-left));
 }
 
 .gallery-next {
-    right: 0;
-    padding-right: calc(var(--overlay-padding) / 2);
-    text-align: right;
-}
-
-@media (max-width: 640px) {
-    :root {
-        --gallery-nav-width: 64px;
-        --carousel-height: 76px;
-    }
-    .main-view {
-        max-width: calc(100% - (var(--gallery-nav-width) * 2) - (var(--overlay-padding) * 1));
-        max-height: calc(100% - (var(--overlay-padding) * 2) - var(--carousel-height));
-        margin-inline: calc(var(--gallery-nav-width) + (var(--overlay-padding) / 2));
-        border-radius: 6px;
-    }
-
-    .gallery-close {
-        right: 14px;
-        font-size: 2.4rem;
-    }
-
-    .gallery-nav {
-        font-size: 2.4rem;
-    }
-
-    .gallery-carousel-inner img {
-        width: 44px;
-        height: 44px;
-    }
+    right: calc(8px + env(safe-area-inset-right));
 }
 
 @keyframes fadeIn {
@@ -171,4 +127,21 @@
 @keyframes fadeOut {
     from { opacity: 1; }
     to { opacity: 0; }
+}
+
+@media (max-width: 420px) {
+    .gallery-overlay {
+        --overlay-margin: 12px;
+        --nav-space: 56px;
+    }
+    .main-view {
+        max-width: calc(100% - (var(--nav-space) * 2) - (var(--overlay-margin) * 2));
+        max-height: calc(100% - (var(--overlay-margin) * 2) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        margin: 0 var(--nav-space);
+        border-radius: 6px;
+    }
+    .gallery-overlay .gallery-close {
+        font-size: 2.4rem;
+    }
+    .gallery-nav { font-size: 2.4rem; }
 }
