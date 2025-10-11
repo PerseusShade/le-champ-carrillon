@@ -1,5 +1,8 @@
 :root {
+    --main-green: #318C57;
+    --main-orange: #F7931E;
     --main-brown: #7B2D2D;
+    --main-bg: #f9f9f6;
     --header-height: 56px;
 
     --burger-size: 48px;
@@ -62,17 +65,17 @@ html, body {
     position: absolute;
     width: 0%;
     height: 3px;
-    background-color: #F7931E;
+    background-color: var(--main-orange);
     left: 0;
     bottom: -5px;
     transition: width 0.3s ease;
 }
-.main-nav a:hover { color: #F7931E; }
+.main-nav a:hover { color: var(--main-orange); }
 .main-nav a:hover::after { width: 100%; }
 
 #header .btn-contact {
     padding: 5px 11px;
-    background-color: #318C57;
+    background-color: var(--main-green);
     color: #FFFFFF;
     border-radius: 5px;
     font-weight: 500;
@@ -82,7 +85,7 @@ html, body {
     transform-origin: center center;
 }
 #header .btn-contact:hover {
-    background-color: #F7931E;
+    background-color: var(--main-orange);
     transform: scale(1.05);
 }
 
@@ -92,7 +95,7 @@ html, body {
     left: 0;
     width: 100%;
     height: calc(100% - var(--header-height));
-    background-color: #f9f9f6;
+    background-color: var(--main-bg);
     opacity: 0;
     pointer-events: none;
     z-index: 19999;
@@ -158,13 +161,30 @@ html, body {
 
 .position-compact .burger-btn { display: block; }
 
+.position-compact .burger-btn {
+    position: relative;
+    z-index: 10;
+    -webkit-backdrop-filter: blur(6px) saturate(100%);
+    backdrop-filter: blur(6px) saturate(100%);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
+.position-compact.menu-open .burger-btn {
+    background: rgba(0, 0, 0, 0);
+    border-color: rgba(0, 0, 0, 0);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0);
+}
+
 .burger-btn .bar {
     position: absolute;
     left: 50%;
     top: 50%;
     width: var(--burger-bar-width);
     height: var(--burger-bar-height);
-    background-color: var(--main-brown);
+    background-color: var(--main-orange);
     border-radius: 2px;
     transform-origin: center;
     transition: transform 0.32s cubic-bezier(.2,.9,.3,1), opacity 0.16s ease, top 0.32s cubic-bezier(.2,.9,.3,1);
@@ -307,7 +327,7 @@ html, body {
     cursor: pointer;
 }
 .position-compact #menu-overlay .overlay-nav .main-nav a:hover {
-    color: #F7931E;
+    color: var(--main-orange);
 }
 
 .position-compact #menu-overlay .overlay-nav .main-nav a::after {
@@ -317,7 +337,7 @@ html, body {
     bottom: -5px;
     height: 3px;
     width: 0;
-    background-color: #F7931E;
+    background-color: var(--main-orange);
     transition: width 0.3s ease;
     display: block !important;
 }
@@ -356,7 +376,7 @@ html, body {
     display: inline-block;
     text-decoration: none;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    background-color: #318C57;
+    background-color: var(--main-green);
     color: #FFFFFF;
     border-radius: 5px;
     font-weight: 500;
@@ -365,7 +385,7 @@ html, body {
 }
 .position-compact #menu-overlay .contact-placeholder .btn-contact:hover,
 .position-compact #menu-overlay .overlay-clone .btn-contact:hover {
-    background-color: #F7931E;
+    background-color: var(--main-orange);
     transform: scale(1.05);
 }
 .position-compact #menu-overlay .contact-placeholder .btn-contact.active,
