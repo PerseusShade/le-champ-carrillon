@@ -85,6 +85,7 @@ body.animate-ready .white-overlay {
     --side-padding: clamp(12px, 3vw, 48px);
     --vertical-padding: clamp(20px, 3.5vw, 56px);
     --border-w: clamp(2px, 0.4vw, 3px);
+    --box-gap: 48px;
     position: relative;
     max-width: 920px;
     width: calc(100% - 20px);
@@ -93,11 +94,15 @@ body.animate-ready .white-overlay {
     padding: var(--vertical-padding) var(--side-padding);
     border-radius: 12px;
     box-shadow: 0 18px 40px rgba(0,0,0,0.12);
-    overflow: visible;
     transform: translateY(28px);
     opacity: 0;
     transition: transform 1200ms cubic-bezier(.2,.9,.3,1), opacity 1200ms ease;
     will-change: transform, opacity;
+    display: flex;
+    flex-direction: column;
+
+    overflow: visible;
+    max-height: calc(100vh - var(--box-gap) - 60px);
 }
 
 .text-box.show {
@@ -121,6 +126,8 @@ body.animate-ready .white-overlay {
     transform-origin: center;
     opacity: 0;
     will-change: transform, opacity, box-shadow;
+
+    z-index: 6;
 }
 
 .avatar.reveal {
@@ -150,6 +157,10 @@ body.animate-ready .white-overlay {
 
 .text-content {
     margin-left: 0;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    max-height: calc(100vh - var(--box-gap) - var(--vertical-padding) - 60px);
 }
 
 .text-content h1 {
@@ -194,6 +205,17 @@ body.animate-ready .white-overlay {
         --avatar-size: clamp(56px, 11vw, 84px);
         top: calc(var(--avatar-size) * -0.42);
         left: calc(var(--side-padding) - var(--border-w));
+    }
+}
+
+@media (max-height: 540px) {
+    .text-box {
+        --box-gap: 28px;
+        max-height: calc(100vh - var(--box-gap));
+    }
+
+    .text-content {
+        max-height: calc(100vh - var(--box-gap) - (var(--vertical-padding) * 0.9));
     }
 }
 
