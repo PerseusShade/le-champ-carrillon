@@ -75,12 +75,16 @@ body.animate-ready .white-overlay {
 }
 
 .text-box {
+    --side-padding: clamp(12px, 3vw, 48px);
+    --vertical-padding: clamp(20px, 3.5vw, 56px);
+    --border-w: clamp(2px, 0.4vw, 3px);
+
     position: relative;
     max-width: 920px;
-    width: calc(100% - 80px);
+    width: calc(100% - 40px);
     background: rgba(255,255,255,0.9);
-    border: 3px solid var(--main-green);
-    padding: 56px 48px 40px 48px;
+    border: var(--border-w) solid var(--main-green);
+    padding: var(--vertical-padding) var(--side-padding);
     border-radius: 12px;
     box-shadow: 0 18px 40px rgba(0,0,0,0.12);
     overflow: visible;
@@ -96,13 +100,16 @@ body.animate-ready .white-overlay {
 }
 
 .avatar {
+    --avatar-size: clamp(64px, 9vw, 120px);
+    --avatar-border: clamp(3px, 0.6vw, 4px);
+
     position: absolute;
-    top: -50px;
-    left: 20px;
-    width: 100px;
-    height: 100px;
+    top: calc(var(--avatar-size) * -0.45);
+    left: calc(var(--side-padding) - var(--border-w));
+    width: var(--avatar-size);
+    height: var(--avatar-size);
     border-radius: 50%;
-    border: 4px solid var(--main-orange);
+    border: var(--avatar-border) solid var(--main-orange);
     object-fit: cover;
     background-color: #fff;
     box-shadow: 0 6px 18px rgba(0,0,0,0.12);
@@ -154,14 +161,38 @@ body.animate-ready .white-overlay {
     font-size: 1rem;
     line-height: 1.6;
     text-align: justify;
+    padding-inline: clamp(4px, 1.5vw, 12px);
+}
+
+@media (max-width: 420px) {
+    .text-box {
+        width: calc(100% - 24px);
+        padding: clamp(12px, 4vw, 20px);
+        border-radius: 10px;
+    }
+
+    .text-content h1 {
+        font-size: 1.4rem;
+        margin: 12px 0;
+    }
+
+    .text-content p {
+        margin-top: 12px;
+        font-size: 0.98rem;
+        line-height: 1.45;
+    }
+
+    .avatar {
+        --avatar-size: clamp(56px, 11vw, 84px);
+        top: calc(var(--avatar-size) * -0.42);
+        left: calc(var(--side-padding) - var(--border-w));
+    }
 }
 
 body.preload .white-overlay,
 body.preload .hero::before,
 body.preload .text-box,
 body.preload .avatar {
-  transition: none !important;
-  animation: none !important;
-
+    transition: none !important;
+    animation: none !important;
 }
-
