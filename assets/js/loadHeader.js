@@ -20,6 +20,13 @@
     };
 
     function updateHeaderHeight(headerEl) {
+        try {
+            if (document.documentElement.classList.contains('position-compact')) {
+                document.documentElement.style.setProperty('--header-height', '0px');
+                return;
+            }
+        } catch (e) {}
+
         const header = headerEl || nearestHeader();
         if (!header) return;
         const rect = header.getBoundingClientRect();
@@ -735,8 +742,6 @@
 
         if (!isCompact) simpleFadeFlow(); else advancedFadeFlow();
     }
-
-
 
     window.addEventListener('resize', () => {
         updateHeaderHeight();
