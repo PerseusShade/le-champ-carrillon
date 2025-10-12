@@ -10,7 +10,7 @@
 }
 
 body {
-    padding-top: var(--header-height, 60px);
+    padding-top: var(--header-height);
     background-color: var(--main-bg);
 }
 
