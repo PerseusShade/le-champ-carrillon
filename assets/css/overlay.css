@@ -6,6 +6,7 @@
     bottom: 0;
     --overlay-margin: 24px;
     --nav-space: 88px;
+    --carousel-height: 88px;
     padding-top: calc(var(--overlay-margin) + env(safe-area-inset-top));
     padding-bottom: calc(var(--overlay-margin) + env(safe-area-inset-bottom));
     padding-left: var(--overlay-margin);
@@ -19,8 +20,6 @@
     z-index: 9999 !important;
     transition: opacity 0.3s ease;
     overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    -webkit-transform: translateZ(0);
 }
 
 .gallery-overlay .gallery-close {
@@ -46,14 +45,14 @@
     width: auto;
     height: auto;
     max-width: calc(100% - (var(--nav-space) * 2) - (var(--overlay-margin) * 2));
-    max-height: calc(100% - (var(--overlay-margin) * 2) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    max-height: calc(100% - var(--carousel-height) - (var(--overlay-margin) * 2) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     margin: 0 var(--nav-space);
     border-radius: 8px;
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
     transition: opacity 150ms ease;
     object-fit: contain;
     max-inline-size: calc(100% - (var(--nav-space) * 2));
-    max-block-size: calc(100% - (var(--overlay-margin) * 2));
+    max-block-size: calc(100% - var(--carousel-height) - (var(--overlay-margin) * 2));
     z-index: 10005;
 }
 
@@ -112,11 +111,11 @@
 }
 
 .gallery-prev {
-    left: calc(8px + env(safe-area-inset-left));
+    left: calc(var(--overlay-margin) + env(safe-area-inset-left));
 }
 
 .gallery-next {
-    right: calc(8px + env(safe-area-inset-right));
+    right: calc(var(--overlay-margin) + env(safe-area-inset-right));
 }
 
 @keyframes fadeIn {
