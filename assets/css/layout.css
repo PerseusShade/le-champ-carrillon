@@ -12,10 +12,6 @@ html, body {
     color: #333;
 }
 
-:root {
-    --header-height: 59px;
-}
-
 #header {
     position: fixed;
     top: 0;
