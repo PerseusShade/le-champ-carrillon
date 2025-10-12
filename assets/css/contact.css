@@ -5,6 +5,10 @@
     --main-bg: #f9f9f6;
 }
 
+body {
+    background-color: var(--main-bg);
+}
+
 .contact-page {
     font-family: "Segoe UI", sans-serif;
     padding: 40px 10%;
@@ -269,4 +273,5 @@ footer {
     .contact-page { padding: 20px 5%; }
     .contact-info .line .icon { width: 18px; height: 18px; }
 }
+
 
