@@ -273,14 +273,20 @@
                         return;
                     }
 
-                    if (isLogo) {
-                        showFadeAndNavigate(fadeEl, href, overlayElem);
-                    } else {
+                    const closeOverlay = () => {
+                        if (!overlayElem) return;
                         overlayElem.classList.remove('open');
                         overlayElem.setAttribute('aria-hidden','true');
                         document.documentElement.classList.remove('menu-open');
                         document.body.style.overflow = '';
                         if (burger) { burger.setAttribute('aria-expanded','false'); burger.classList.remove('active'); }
+                    };
+
+                    if (isLogo) {
+                        closeOverlay();
+                        showFadeAndNavigate(fadeEl, href, overlayElem);
+                    } else {
+                        closeOverlay();
                         showFadeAndNavigate(fadeEl, href, overlayElem);
                     }
                 });
