@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const baseOverlayZ = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--overlay-z')) || 999;
 
     function pxToNumber(px) { return px ? parseFloat(String(px).replace('px',''))||0 : 0; }
-
     function getHeaderHeightPx() {
         const raw = getComputedStyle(document.documentElement).getPropertyValue('--header-height') || '0px';
         return pxToNumber(raw);
@@ -34,7 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const basePath = IMG_PATH_POINTS_JSON.replace(/\/[^/]+$/, '');
     function resolveImagePath(imgPath) {
         if (!imgPath) return imgPath;
-        const clean = String(imgPath).replace(/^\/+/, '');
+        const s = String(imgPath);
+        if (s.startsWith(basePath) || s.startsWith('./') || s.startsWith('../') || /assets\/img\//.test(s)) return s;
+        const clean = s.replace(/^\/+/, '');
         return basePath + '/' + clean;
     }
 
@@ -70,28 +71,157 @@ document.addEventListener('DOMContentLoaded', () => {
             panelPromise = waitTransitionEnd(bottomInfo, 420);
         }
 
-        await Promise.all([...promises, panelPromise]);
+        let framePromise = Promise.resolve();
+        if (frame.classList.contains('rotated') && String(frame.style.opacity) !== '' && Number(frame.style.opacity) < 1) {
+            const prev = frame.style.transition || '';
+            frame.style.transition = 'opacity 320ms ease';
+            frame.style.opacity = '1';
+            framePromise = waitTransitionEnd(frame, 360).then(() => { frame.style.transition = prev; });
+        }
+
+        await Promise.all([...promises, panelPromise, framePromise]);
 
         oldThumbs.forEach(tb => tb.remove());
         bottomInfo.classList.remove('hiding');
         bottomInfo.classList.remove('show');
         bottomInfo.setAttribute('aria-hidden', 'true');
+
+        const mainBox = document.querySelector('.thumb-box.main-image');
+        if (mainBox) mainBox.remove();
+
+        currentOpen = null;
     }
 
+    const planRoot = document.getElementById('plan-root');
+    const ROTATE_MQ = window.matchMedia('(max-width: 720px)');
+
+    const ROTATION_MARGIN_V = 12;
+    const ROTATED_SIDE_MARGIN = 12;
+    const MAX_SCALE_VERTICAL = 1.5;
+
+    const ROTATED_THUMB_TOP_OFFSET = 30;
+
+    let currentOpen = null;
+
+    let ro = null;
+    if (window.ResizeObserver && planRoot) {
+        ro = new ResizeObserver(() => updateFrameRotation());
+        ro.observe(planRoot);
+    }
+
+    function applyTransformInstant(el, transformValue) {
+        const prev = el.style.transition || '';
+        el.style.transition = 'none';
+        el.style.transformOrigin = 'center center';
+        el.style.transform = transformValue;
+        el.getBoundingClientRect();
+        requestAnimationFrame(() => { el.style.transition = prev; });
+    }
+
+    function resetBottomInfoInline() {
+        if (!bottomInfo) return;
+        bottomInfo.style.left = '';
+        bottomInfo.style.right = '';
+        bottomInfo.style.width = '';
+        bottomInfo.style.top = '';
+        bottomInfo.style.zIndex = '';
+    }
+
+    function resetThumbBoxesInline() {
+        const thumbs = document.querySelectorAll('.thumb-box');
+        thumbs.forEach(b => {
+            b.style.left = '';
+            b.style.top = '';
+            b.style.width = '';
+            b.style.height = '';
+            b.style.zIndex = '';
+        });
+    }
+
+    function getRotatedArea() {
+        const rootRect = planRoot.getBoundingClientRect();
+        const rootStyles = getComputedStyle(planRoot);
+        const rootPadL = pxToNumber(rootStyles.paddingLeft);
+        const rootPadR = pxToNumber(rootStyles.paddingRight);
+        const left = Math.round(rootRect.left + rootPadL + ROTATED_SIDE_MARGIN);
+        const width = Math.max(40, Math.round(rootRect.width - rootPadL - rootPadR - ROTATED_SIDE_MARGIN * 2));
+        return { areaLeft: left, areaWidth: width };
+    }
+
+    function updateFrameRotation() {
+        if (!frame || !planRoot) return;
+        const shouldRotate = ROTATE_MQ.matches;
+
+        const rootRect = planRoot.getBoundingClientRect();
+        const rootStyles = getComputedStyle(planRoot);
+        const rootPadL = pxToNumber(rootStyles.paddingLeft);
+        const rootPadR = pxToNumber(rootStyles.paddingRight);
+        const availW = Math.max(20, rootRect.width - rootPadL - rootPadR);
+        const availH = Math.max(20, window.innerHeight - getHeaderHeightPx() - ROTATION_MARGIN_V * 2);
+
+        const fw = Math.max(1, frame.clientWidth);
+        const fh = Math.max(1, frame.clientHeight);
+
+        if (!shouldRotate) {
+            frame.classList.remove('rotated');
+            applyTransformInstant(frame, '');
+            frame.style.overflow = '';
+            frame.style.opacity = '1';
+            resetBottomInfoInline();
+            resetThumbBoxesInline();
+            const mainBox = document.querySelector('.thumb-box.main-image'); if (mainBox) mainBox.remove();
+            positionPoints();
+            updateOpenLayout();
+            return;
+        }
+
+        const scale = Math.min(MAX_SCALE_VERTICAL, availW / fh, availH / fw);
+
+        const transformValue = `rotate(90deg) scale(${scale})`;
+        frame.classList.add('rotated');
+        frame.style.overflow = 'visible';
+
+        applyTransformInstant(frame, transformValue);
+
+        if (currentOpen) {
+            frame.style.transition = 'opacity 320ms ease';
+            frame.style.opacity = '0.18';
+        } else {
+            frame.style.opacity = '1';
+        }
+
+        setTimeout(() => {
+            positionPoints();
+            const active = document.querySelector('.map-point.active');
+            if (tooltip.classList.contains('show') && active) positionTooltip(active);
+            updateOpenLayout();
+        }, 30);
+    }
+
+    updateFrameRotation();
+
+    window.addEventListener('resize', () => {
+        updateFrameRotation();
+        positionPoints();
+        updateOpenLayout();
+        const active = document.querySelector('.map-point.active');
+        if (tooltip.classList.contains('show') && active) positionTooltip(active);
+    });
+    window.addEventListener('orientationchange', () => { updateFrameRotation(); });
+    if (ROTATE_MQ.addEventListener) ROTATE_MQ.addEventListener('change', updateFrameRotation); else if (ROTATE_MQ.addListener) ROTATE_MQ.addListener(updateFrameRotation);
+
     function positionPoints() {
-        const imgRect = img.getBoundingClientRect();
         const cs = getComputedStyle(img);
         const borderLeft = pxToNumber(cs.borderLeftWidth);
         const borderTop = pxToNumber(cs.borderTopWidth);
         const borderRight = pxToNumber(cs.borderRightWidth);
         const borderBottom = pxToNumber(cs.borderBottomWidth);
 
-        const contentLeft = imgRect.left + borderLeft;
-        const contentTop = imgRect.top + borderTop;
-        const contentWidth = Math.max(0, imgRect.width - borderLeft - borderRight);
-        const contentHeight = Math.max(0, imgRect.height - borderTop - borderBottom);
+        const contentWidth = Math.max(0, img.clientWidth - borderLeft - borderRight);
+        const contentHeight = Math.max(0, img.clientHeight - borderTop - borderBottom);
 
-        const overlayRect = overlay.getBoundingClientRect();
+        const imgOffsetLeft = img.offsetLeft || 0;
+        const imgOffsetTop = img.offsetTop || 0;
 
         overlay.querySelectorAll('.map-point').forEach(btn => {
             const rawX = Number(btn.dataset.x);
@@ -99,16 +229,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!Number.isFinite(rawX) || !Number.isFinite(rawY)) {
                 btn.style.display = 'none'; return;
             }
+
             const pxInsideX = (rawX / 100) * contentWidth;
             const pxInsideY = (rawY / 100) * contentHeight;
-            const pxAbsX = contentLeft + pxInsideX;
-            const pxAbsY = contentTop + pxInsideY;
-            const localX = pxAbsX - overlayRect.left;
-            const localY = pxAbsY - overlayRect.top;
+
+            const localX = imgOffsetLeft + borderLeft + pxInsideX;
+            const localY = imgOffsetTop + borderTop + pxInsideY;
+
+            btn.style.position = 'absolute';
             btn.style.left = `${Math.round(localX)}px`;
             btn.style.top = `${Math.round(localY)}px`;
             btn.style.display = '';
         });
+
+        const imgRect = img.getBoundingClientRect();
         positionBottomInfo(imgRect);
     }
 
@@ -118,6 +252,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!bottomInfo.classList.contains('show')) return;
 
         const panelRect = bottomInfo.getBoundingClientRect();
+
+        const rootRect = planRoot.getBoundingClientRect();
+        const rootStyles = getComputedStyle(planRoot);
+        const rootPadL = pxToNumber(rootStyles.paddingLeft);
+        const rootPadR = pxToNumber(rootStyles.paddingRight);
+
+        if (frame.classList.contains('rotated')) {
+            const { areaLeft, areaWidth } = getRotatedArea();
+            bottomInfo.style.position = 'fixed';
+            bottomInfo.style.left = `${areaLeft}px`;
+            bottomInfo.style.right = '';
+            bottomInfo.style.width = `${areaWidth}px`;
+
+            let desiredTop = Math.round(frameRect.bottom - panelRect.height - 12);
+            desiredTop = Math.max(ROTATION_MARGIN_V, Math.min(desiredTop, window.innerHeight - panelRect.height - ROTATION_MARGIN_V));
+            desiredTop += ROTATED_THUMB_TOP_OFFSET;
+            bottomInfo.style.top = `${desiredTop}px`;
+            bottomInfo.style.zIndex = (baseOverlayZ || 999) + 40;
+
+            const thumbs = Array.from(document.querySelectorAll('.thumb-box'));
+            if (thumbs.length) updateOpenLayout();
+            return;
+        }
+
         const gapBottom = Math.max(0, window.innerHeight - frameRect.bottom);
 
         let desiredTop = Math.round(frameRect.bottom + (gapBottom / 2) - (panelRect.height / 2));
@@ -130,15 +288,18 @@ document.addEventListener('DOMContentLoaded', () => {
             desiredTop = Math.min(Math.max(desiredTop, minTop), maxTop);
         }
 
+        bottomInfo.style.left = bottomInfo.style.left || '';
+        bottomInfo.style.right = bottomInfo.style.right || '';
+        bottomInfo.style.width = '';
+
         bottomInfo.style.position = 'fixed';
         bottomInfo.style.left = bottomInfo.style.left || '10%';
         bottomInfo.style.right = bottomInfo.style.right || '10%';
         bottomInfo.style.top = `${desiredTop}px`;
-        bottomInfo.style.zIndex = (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--overlay-z')) || 999) + 12;
+        bottomInfo.style.zIndex = (baseOverlayZ || 999) + 12;
     }
 
-    function clearGallery() {
-    }
+    function clearGallery() {}
 
     function openGalleryWith(images, startIndex = 0) {
         if (!Array.isArray(images) || images.length === 0) return;
@@ -155,8 +316,159 @@ document.addEventListener('DOMContentLoaded', () => {
         clearGallery();
     };
 
-    function navigateGallery(direction) {
-        if (!window.GalleryOverlay || typeof window.GalleryOverlay.open !== 'function') return;
+    function navigateGallery(direction) { if (!window.GalleryOverlay || typeof window.GalleryOverlay.open !== 'function') return; }
+
+    function updateOpenLayout() {
+        if (!currentOpen) return;
+        const images = currentOpen.images || [];
+
+        const cs = getComputedStyle(img);
+        const borderLeft = pxToNumber(cs.borderLeftWidth);
+        const borderRight = pxToNumber(cs.borderRightWidth);
+        const borderTop = pxToNumber(cs.borderTopWidth);
+        const borderBottom = pxToNumber(cs.borderBottomWidth);
+
+        const contentWidth = Math.max(0, img.clientWidth - borderLeft - borderRight);
+        const contentHeight = Math.max(0, img.clientHeight - borderTop - borderBottom);
+
+        const rootRect = planRoot.getBoundingClientRect();
+        const rootStyles = getComputedStyle(planRoot);
+        const rootPadL = pxToNumber(rootStyles.paddingLeft);
+        const rootPadR = pxToNumber(rootStyles.paddingRight);
+        let areaLeft = Math.round(rootRect.left + rootPadL);
+        let areaWidth = Math.max(24, Math.round(rootRect.width - rootPadL - rootPadR));
+
+        const headerH = getHeaderHeightPx();
+        const imgRect = img.getBoundingClientRect();
+        const gapTop = Math.max(0, imgRect.top - headerH);
+
+        const MIN_THUMB_HEIGHT = 40;
+        const MARGIN_AROUND = 12;
+        let thumbHeight = Math.max(MIN_THUMB_HEIGHT, gapTop - (MARGIN_AROUND * 2));
+
+        const GAP_BETWEEN = 10;
+        const n = Math.max(1, images.length);
+        let thumbWidth = Math.floor(Math.max(24, (contentWidth - GAP_BETWEEN * (n - 1)) / n));
+        if (thumbWidth * n + GAP_BETWEEN * (n - 1) > contentWidth) {
+            const reducedGap = Math.max(4, Math.round((contentWidth - (24 * n)) / Math.max(1, n - 1)));
+            thumbWidth = Math.floor(Math.max(24, (contentWidth - reducedGap * (n - 1)) / n));
+        }
+
+        let topForThumbs = frame.classList.contains('rotated')
+            ? Math.max(8, Math.round(imgRect.top + 8))
+            : Math.max(8, headerH + Math.round((gapTop - thumbHeight) / 2));
+
+        if (frame.classList.contains('rotated')) topForThumbs += ROTATED_THUMB_TOP_OFFSET;
+
+        if (frame.classList.contains('rotated')) {
+            const area = getRotatedArea();
+            areaLeft = area.areaLeft; areaWidth = area.areaWidth;
+
+            document.querySelectorAll('.thumb-box:not(.main-image)').forEach(b => b.remove());
+
+            if (currentOpen && currentOpen.images && currentOpen.images.length) {
+                const halfH = Math.floor((window.innerHeight - getHeaderHeightPx()) / 2);
+                const mainImgH = Math.max(120, Math.min(halfH - 24, Math.floor(halfH * 0.9)));
+                const aspect = Math.max(0.5, Math.min(2, contentWidth / Math.max(1, contentHeight)));
+                const mainImgW = Math.min(areaWidth, Math.floor(mainImgH * aspect));
+
+                let mainBox = document.querySelector('.thumb-box.main-image');
+                if (!mainBox) {
+                    mainBox = document.createElement('div');
+                    mainBox.className = 'thumb-box main-image';
+                    mainBox.style.border = getComputedStyle(document.documentElement).getPropertyValue('--panel-border') || '2px solid var(--main-orange)';
+                    mainBox.style.boxSizing = 'border-box';
+                    mainBox.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (currentOpen && currentOpen.images) openGalleryWith(currentOpen.images, 0);
+                    });
+                    document.body.appendChild(mainBox);
+                }
+
+                let mi = mainBox.querySelector('img');
+                if (!mi) {
+                    mi = document.createElement('img');
+                    mi.style.width = '100%';
+                    mi.style.height = '100%';
+                    mi.style.objectFit = 'cover';
+                    mainBox.appendChild(mi);
+                }
+                mi.src = currentOpen.images && currentOpen.images[0] ? (isAbsolutePath(currentOpen.images[0]) ? currentOpen.images[0] : resolveImagePath(currentOpen.images[0])) : '';
+
+                const mainLeft = areaLeft + Math.round((areaWidth - mainImgW) / 2);
+                const mainTop = Math.round(getHeaderHeightPx() + Math.round((halfH - mainImgH) / 2)) + ROTATED_THUMB_TOP_OFFSET;
+
+                mainBox.style.position = 'fixed';
+                mainBox.style.left = `${mainLeft}px`;
+                mainBox.style.top = `${mainTop}px`;
+                mainBox.style.width = `${mainImgW}px`;
+                mainBox.style.height = `${mainImgH}px`;
+                mainBox.style.zIndex = (baseOverlayZ || 999) + 60;
+                mainBox.classList.add('showing');
+
+                bottomInfo.style.position = 'fixed';
+                bottomInfo.style.left = `${areaLeft}px`;
+                bottomInfo.style.width = `${areaWidth}px`;
+                const textPanelH = Math.min(Math.floor(halfH * 0.9), 320);
+                const textTop = Math.round(getHeaderHeightPx() + halfH + Math.round((halfH - textPanelH) / 2)) + ROTATED_THUMB_TOP_OFFSET;
+                bottomInfo.style.top = `${textTop}px`;
+                bottomInfo.style.zIndex = (baseOverlayZ || 999) + 60;
+
+                return;
+            }
+        }
+
+        let thumbEls = Array.from(document.querySelectorAll('.thumb-box'));
+        thumbEls = thumbEls.filter(b => !b.classList.contains('main-image'));
+
+        if (thumbEls.length === 0 && currentOpen && currentOpen.images && currentOpen.images.length) {
+            const frag = document.createDocumentFragment();
+            currentOpen.images.forEach((src, idx) => {
+                const box = document.createElement('div');
+                box.className = 'thumb-box';
+                box.classList.remove('showing', 'hiding');
+
+                let leftX = Math.round(imgRect.left + borderLeft + idx * (thumbWidth + GAP_BETWEEN));
+                box.style.position = 'fixed';
+                box.style.left = `${leftX}px`;
+                box.style.top = `${topForThumbs}px`;
+                box.style.width = `${thumbWidth}px`;
+                box.style.height = `${thumbHeight}px`;
+                box.style.zIndex = (baseOverlayZ || 999) + 50;
+                box.dataset.index = String(idx);
+
+                const imgEl = document.createElement('img');
+                imgEl.alt = (bottomInfo && bottomInfo.textContent) ? `${bottomInfo.textContent} (${idx + 1})` : `photo ${idx + 1}`;
+                imgEl.src = src;
+
+                box.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const full = (currentOpen.images || []).map(s => isAbsolutePath(s) ? s : resolveImagePath(s));
+                    if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
+                        window.GalleryOverlay.open(idx, full, { enableScroll: false });
+                    }
+                });
+
+                box.appendChild(imgEl);
+                frag.appendChild(box);
+            });
+            document.body.appendChild(frag);
+
+            thumbEls = Array.from(document.querySelectorAll('.thumb-box')).filter(b => !b.classList.contains('main-image'));
+            thumbEls.forEach(b => b.classList.add('showing'));
+        }
+
+        let startLeft = Math.round(imgRect.left + borderLeft);
+        thumbEls.forEach((box, idx) => {
+            let leftX = Math.round(startLeft + idx * (thumbWidth + GAP_BETWEEN));
+            box.style.left = `${leftX}px`;
+            box.style.top = `${topForThumbs}px`;
+            box.style.width = `${thumbWidth}px`;
+            box.style.height = `${thumbHeight}px`;
+        });
+
+        resetBottomInfoInline();
+        positionBottomInfo(imgRect);
     }
 
     async function loadPoints() {
@@ -204,9 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     await openPoint(btn);
                 });
 
-                btn.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
-                });
+                btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); } });
             });
             positionPoints();
         } catch (err) {
@@ -238,53 +548,128 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const images = Array.isArray(payload.images) ? payload.images.slice() : [];
 
-        const imgRect = img.getBoundingClientRect();
         const cs = getComputedStyle(img);
         const borderLeft = pxToNumber(cs.borderLeftWidth);
         const borderTop = pxToNumber(cs.borderTopWidth);
         const borderRight = pxToNumber(cs.borderRightWidth);
         const borderBottom = pxToNumber(cs.borderBottomWidth);
 
-        const contentLeft = imgRect.left + borderLeft;
-        const contentTop = imgRect.top + borderTop;
-        const contentWidth = Math.max(0, imgRect.width - borderLeft - borderRight);
-        const contentHeight = Math.max(0, imgRect.height - borderTop - borderBottom);
+        const contentWidth = Math.max(0, img.clientWidth - borderLeft - borderRight);
+        const contentHeight = Math.max(0, img.clientHeight - borderTop - borderBottom);
+
+        const imgRect = img.getBoundingClientRect();
 
         const headerH = getHeaderHeightPx();
         const gapTop = Math.max(0, imgRect.top - headerH);
 
         const MIN_THUMB_HEIGHT = 40;
-        const MARGIN_AROUND = 20;
+        const MARGIN_AROUND = 12;
         let thumbHeight = Math.max(MIN_THUMB_HEIGHT, gapTop - (MARGIN_AROUND * 2));
 
         const GAP_BETWEEN = 10;
         const n = Math.max(1, images.length);
         const totalGaps = GAP_BETWEEN * (n - 1);
-        let thumbWidth = Math.floor(Math.max(24, (contentWidth - totalGaps) / n));
 
+        let thumbWidth = Math.floor(Math.max(24, (contentWidth - totalGaps) / n));
         if (thumbWidth * n + totalGaps > contentWidth) {
-                const reducedGap = Math.max(4, Math.round((contentWidth - (24 * n)) / Math.max(1, n - 1)));
-                thumbWidth = Math.floor(Math.max(24, (contentWidth - reducedGap * (n - 1)) / n));
+            const reducedGap = Math.max(4, Math.round((contentWidth - (24 * n)) / Math.max(1, n - 1)));
+            thumbWidth = Math.floor(Math.max(24, (contentWidth - reducedGap * (n - 1)) / n));
         }
 
-        const overlayLeft = contentLeft;
-        const startLeft = overlayLeft;
-        const topForThumbs = Math.max(8, headerH + Math.round((gapTop - thumbHeight) / 2));
+        const rootRect = planRoot.getBoundingClientRect();
+        const rootStyles = getComputedStyle(planRoot);
+        const rootPadL = pxToNumber(rootStyles.paddingLeft);
+        const rootPadR = pxToNumber(rootStyles.paddingRight);
+        const { areaLeft, areaWidth } = frame.classList.contains('rotated') ? getRotatedArea() : { areaLeft: Math.round(rootRect.left + rootPadL), areaWidth: Math.max(24, Math.round(rootRect.width - rootPadL - rootPadR)) };
+
+        let startLeft = Math.round(imgRect.left + borderLeft);
+        if (frame.classList.contains('rotated')) {
+            startLeft = areaLeft;
+        }
+
+        const topForThumbs = frame.classList.contains('rotated')
+            ? Math.max(8, Math.round(imgRect.top + 8)) + ROTATED_THUMB_TOP_OFFSET
+            : Math.max(8, headerH + Math.round((gapTop - thumbHeight) / 2));
 
         const frag = document.createDocumentFragment();
         const thumbEls = [];
 
-        images.forEach((src, idx) => {
+        if (frame.classList.contains('rotated')) {
+            const halfH = Math.floor((window.innerHeight - getHeaderHeightPx()) / 2);
+            const mainImgH = Math.max(120, Math.min(halfH - 24, Math.floor(halfH * 0.9)));
+            const aspect = Math.max(0.5, Math.min(2, contentWidth / Math.max(1, contentHeight)));
+            const mainImgW = Math.min(areaWidth, Math.floor(mainImgH * aspect));
+
+            let mainBox = document.querySelector('.thumb-box.main-image');
+            if (!mainBox) {
+                mainBox = document.createElement('div');
+                mainBox.className = 'thumb-box main-image';
+                mainBox.style.border = getComputedStyle(document.documentElement).getPropertyValue('--panel-border') || '2px solid var(--main-orange)';
+                mainBox.style.boxSizing = 'border-box';
+                mainBox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (images && images.length) openGalleryWith(images, 0);
+                });
+                document.body.appendChild(mainBox);
+            }
+
+            document.querySelectorAll('.thumb-box:not(.main-image)').forEach(b => b.remove());
+
+            let mi = mainBox.querySelector('img');
+            if (!mi) {
+                mi = document.createElement('img');
+                mi.style.width = '100%';
+                mi.style.height = '100%';
+                mi.style.objectFit = 'cover';
+                mainBox.appendChild(mi);
+            }
+
+            mi.src = images && images[0] ? (isAbsolutePath(images[0]) ? images[0] : resolveImagePath(images[0])) : '';
+
+            const mainLeft = areaLeft + Math.round((areaWidth - mainImgW) / 2);
+            const mainTop = Math.round(getHeaderHeightPx() + Math.round((halfH - mainImgH) / 2)) + ROTATED_THUMB_TOP_OFFSET;
+
+            mainBox.style.position = 'fixed';
+            mainBox.style.left = `${mainLeft}px`;
+            mainBox.style.top = `${mainTop}px`;
+            mainBox.style.width = `${mainImgW}px`;
+            mainBox.style.height = `${mainImgH}px`;
+            mainBox.style.zIndex = (baseOverlayZ || 999) + 60;
+            mainBox.classList.add('showing');
+
+            thumbEls.push(mainBox);
+
+            bottomInfo.innerHTML = '';
+            const title = payload.title ? `<h3 style="margin-top:0;margin-bottom:6px;">${payload.title}</h3>` : '';
+            bottomInfo.innerHTML = title + (payload.text || '');
+            bottomInfo.classList.remove('hiding');
+
+            bottomInfo.style.position = 'fixed';
+            bottomInfo.style.left = `${areaLeft}px`;
+            bottomInfo.style.width = `${areaWidth}px`;
+            const textPanelH = Math.min(Math.floor(halfH * 0.9), 320);
+            const textTop = Math.round(getHeaderHeightPx() + halfH + Math.round((halfH - textPanelH) / 2)) + ROTATED_THUMB_TOP_OFFSET;
+            bottomInfo.style.top = `${textTop}px`;
+            bottomInfo.style.zIndex = (baseOverlayZ || 999) + 60;
+            requestAnimationFrame(() => {
+                bottomInfo.classList.add('show');
+                bottomInfo.setAttribute('aria-hidden', 'false');
+            });
+        } else {
+            images.forEach((src, idx) => {
                 const box = document.createElement('div');
                 box.className = 'thumb-box';
                 box.classList.remove('showing', 'hiding');
 
-                const leftX = Math.round(startLeft + idx * (thumbWidth + GAP_BETWEEN));
+                let leftX = Math.round(startLeft + idx * (thumbWidth + GAP_BETWEEN));
+                leftX = Math.round(startLeft + idx * (thumbWidth + GAP_BETWEEN));
+
                 box.style.position = 'fixed';
                 box.style.left = `${leftX}px`;
                 box.style.top = `${topForThumbs}px`;
                 box.style.width = `${thumbWidth}px`;
                 box.style.height = `${thumbHeight}px`;
+                box.style.zIndex = (baseOverlayZ || 999) + 50;
 
                 box.dataset.index = String(idx);
 
@@ -293,60 +678,66 @@ document.addEventListener('DOMContentLoaded', () => {
                 imgEl.src = src;
 
                 box.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const full = images.map(s => isAbsolutePath(s) ? s : resolveImagePath(s));
-                        if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
-                            window.GalleryOverlay.open(idx, full, { enableScroll: false });
-                        }
+                    e.stopPropagation();
+                    const full = images.map(s => isAbsolutePath(s) ? s : resolveImagePath(s));
+                    if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
+                        window.GalleryOverlay.open(idx, full, { enableScroll: false });
+                    }
                 });
 
                 box.appendChild(imgEl);
                 frag.appendChild(box);
                 thumbEls.push(box);
-        });
+            });
 
-        document.body.appendChild(frag);
+            bottomInfo.innerHTML = '';
+            const title = payload.title ? `<h3 style="margin-top:0;margin-bottom:6px;">${payload.title}</h3>` : '';
+            bottomInfo.innerHTML = title + (payload.text || '');
+            bottomInfo.classList.remove('hiding');
+        }
+
+        if (frag.childNodes && frag.childNodes.length) document.body.appendChild(frag);
 
         await new Promise(resolve => {
-                requestAnimationFrame(() => {
-                        thumbEls.forEach(t => t.getBoundingClientRect());
-                        resolve();
-                });
+            requestAnimationFrame(() => {
+                thumbEls.forEach(t => t.getBoundingClientRect());
+                resolve();
+            });
         });
 
-        thumbEls.forEach(box => {
-                box.classList.remove('hiding');
-                box.classList.add('showing');
-        });
+        thumbEls.forEach(box => { box.classList.remove('hiding'); box.classList.add('showing'); });
 
-        bottomInfo.innerHTML = '';
-        const title = payload.title ? `<h3 style="margin-top:0;margin-bottom:6px;">${payload.title}</h3>` : '';
-        bottomInfo.innerHTML = title + (payload.text || '');
-        bottomInfo.classList.remove('hiding');
-
-        requestAnimationFrame(() => {
+        if (!frame.classList.contains('rotated')) {
+            requestAnimationFrame(() => {
                 bottomInfo.classList.add('show');
                 bottomInfo.setAttribute('aria-hidden', 'false');
-        });
+                const imgRectNow = img.getBoundingClientRect();
+                positionBottomInfo(imgRectNow);
+                bottomInfo.style.zIndex = (baseOverlayZ || 999) + 40;
+            });
+        }
+
+        if (frame.classList.contains('rotated')) {
+            frame.style.transition = 'opacity 320ms ease';
+            frame.style.opacity = '0.18';
+        }
+
+        currentOpen = { btn, images, thumbEls };
 
         setTimeout(() => {
-                positionPoints();
-                thumbEls.forEach((box, idx) => {
-                        const leftX = Math.round(startLeft + idx * (thumbWidth + GAP_BETWEEN));
-                        box.style.left = `${leftX}px`;
-                        box.style.top = `${topForThumbs}px`;
-                        box.style.width = `${thumbWidth}px`;
-                        box.style.height = `${thumbHeight}px`;
-                });
+            positionPoints();
+            thumbEls.forEach((box, idx) => {
+                if (!box.classList.contains('main-image')) {}
+            });
         }, 20);
 
-        setTimeout(() => {
-                document.addEventListener('click', outsideClickListener);
-        }, 10);
+        setTimeout(() => { document.addEventListener('click', outsideClickListener); }, 10);
     }
 
     async function closeAll() {
         overlay.querySelectorAll('.map-point.active').forEach(p => p.classList.remove('active'));
+        const mainBox = document.querySelector('.thumb-box.main-image');
+        if (mainBox) mainBox.remove();
         await fadeOutExistingContent();
         document.removeEventListener('click', outsideClickListener);
     }
@@ -358,29 +749,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.removeEventListener('click', outsideClickListener);
     }
 
-    window.addEventListener('resize', () => {
-        positionPoints();
-        const active = document.querySelector('.map-point.active');
-        if (tooltip.classList.contains('show') && active) positionTooltip(active);
-    });
     window.addEventListener('scroll', () => positionPoints(), true);
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            if (window.GalleryOverlay && typeof window.GalleryOverlay.close === 'function') window.GalleryOverlay.close();
-            fadeOutExistingContent();
-        }
-    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (window.GalleryOverlay && typeof window.GalleryOverlay.close === 'function') window.GalleryOverlay.close(); fadeOutExistingContent(); } });
 
     let initialRevealDone = false;
 
-    function shuffleArray(arr) {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-    }
+    function shuffleArray(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 
     function revealPointsSequentially({stagger = 80} = {}) {
         const pts = Array.from(overlay.querySelectorAll('.map-point'));
@@ -389,20 +764,13 @@ document.addEventListener('DOMContentLoaded', () => {
         idxs.forEach((idx, i) => {
             const el = pts[idx];
             const jitter = Math.round(Math.random() * 40) - 20;
-            setTimeout(() => {
-                el.classList.add('visible');
-                el.removeAttribute('tabindex');
-                el.style.pointerEvents = '';
-            }, i * stagger + jitter);
+            setTimeout(() => { el.classList.add('visible'); el.removeAttribute('tabindex'); el.style.pointerEvents = ''; }, i * stagger + jitter);
         });
     }
 
     async function runMapIntroZoom() {
         if (!img.complete) {
-            await new Promise(resolve => {
-                img.addEventListener('load', resolve, { once: true });
-                setTimeout(resolve, 1000);
-            });
+            await new Promise(resolve => { img.addEventListener('load', resolve, { once: true }); setTimeout(resolve, 1000); });
         }
 
         const prevTransition = img.style.transition || '';
@@ -420,11 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await waitTransitionEnd(img, 600);
 
-        if (prevTransition) {
-            img.style.transition = prevTransition;
-        } else {
-            img.style.transition = '';
-        }
+        if (prevTransition) img.style.transition = prevTransition; else img.style.transition = '';
     }
 
     (async function initSequence() {
@@ -436,31 +800,15 @@ document.addEventListener('DOMContentLoaded', () => {
             revealPointsSequentially({stagger: 80});
             initialRevealDone = true;
         } else {
-            overlay.querySelectorAll('.map-point').forEach(p => {
-                p.classList.add('visible');
-                p.removeAttribute('tabindex');
-                p.style.pointerEvents = '';
-            });
+            overlay.querySelectorAll('.map-point').forEach(p => { p.classList.add('visible'); p.removeAttribute('tabindex'); p.style.pointerEvents = ''; });
         }
     })();
 
     window.planUI = {
-        reload: async function() {
-            await loadPoints();
-            overlay.querySelectorAll('.map-point').forEach(p => {
-                p.classList.add('visible');
-                p.removeAttribute('tabindex');
-                p.style.pointerEvents = '';
-            });
-            initialRevealDone = true;
-        },
+        reload: async function() { await loadPoints(); overlay.querySelectorAll('.map-point').forEach(p => { p.classList.add('visible'); p.removeAttribute('tabindex'); p.style.pointerEvents = ''; }); initialRevealDone = true; },
         openById(id) {
             const btn = overlay.querySelector(`.map-point[data-id="${id}"]`);
-            if (btn) {
-                (async ()=> {
-                    await openPoint(btn);
-                })();
-            }
+            if (btn) (async ()=> { await openPoint(btn); })();
         },
         addPoint(obj) {
             const btn = document.createElement('button');
