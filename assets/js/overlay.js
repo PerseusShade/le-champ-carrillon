@@ -31,26 +31,25 @@
     let isPointerDown = false;
     let lastNavTime = 0;
     const NAV_DEBOUNCE = 300;
-    function toSrc(item){ if (!item) return ''; if (typeof item === 'string') return item; if (item.src) return item.src; return '';}
-    function toAlt(item){ if (!item) return ''; if (typeof item === 'string') return ''; if (item.alt) return item.alt; return '';}
+    function toSrc(item){ if (!item) return ''; if (typeof item === 'string') return item; if (item.src) return item.src; return ''; }
+    function toAlt(item){ if (!item) return ''; if (typeof item === 'string') return ''; if (item.alt) return item.alt; return ''; }
     function clearCarousel(){ carouselInner.innerHTML = ''; }
-    function buildCarouselFromGroup(group){
-        clearCarousel();
-        group.forEach((item, idx)=>{
-            const thumb = document.createElement('img');
-            thumb.src = toSrc(item);
-            thumb.dataset.index = idx;
-            thumb.alt = toAlt(item);
-            thumb.addEventListener('click', e=>{ e.stopPropagation(); showImage(idx); });
-            carouselInner.appendChild(thumb);
-        });
+    function updateCarouselHeightVar(){
+        const c = carousel.getBoundingClientRect().height || 0;
+        const extra = 12;
+        overlay.style.setProperty('--carousel-height', `${Math.ceil(c + extra)}px`);
     }
     function centerActiveThumb(){
-        const thumbs = carouselInner.querySelectorAll('img');
+        const thumbs = Array.from(carouselInner.querySelectorAll('img'));
         const wrapperW = carousel.clientWidth || window.innerWidth;
         const active = thumbs[currentIndex];
-        if (!active) return;
-        const thumbW = active.getBoundingClientRect().width || 80;
+        if (!active){
+            carouselInner.style.transform = '';
+            carouselInner.style.paddingLeft = '';
+            carouselInner.style.paddingRight = '';
+            return;
+        }
+        const thumbW = Math.max(1, active.getBoundingClientRect().width || 80);
         const pad = Math.max((wrapperW - thumbW) / 2, 0);
         carouselInner.style.paddingLeft = `${pad}px`;
         carouselInner.style.paddingRight = `${pad}px`;
@@ -62,14 +61,30 @@
         currentIndex = index;
         if (!currentGroup[currentIndex]) return;
         mainImg.style.opacity = 0;
+        const src = toSrc(currentGroup[currentIndex]);
+        const alt = toAlt(currentGroup[currentIndex]);
         setTimeout(()=>{
-            mainImg.src = toSrc(currentGroup[currentIndex]);
-            mainImg.alt = toAlt(currentGroup[currentIndex]);
+            mainImg.src = src;
+            mainImg.alt = alt;
             mainImg.style.opacity = 1;
         },100);
         const thumbs = carouselInner.querySelectorAll('img');
         thumbs.forEach(t=> t.classList.toggle('active', parseInt(t.dataset.index,10)===currentIndex));
         requestAnimationFrame(()=>{ centerActiveThumb(); });
+    }
+    function buildCarouselFromGroup(group){
+        clearCarousel();
+        group.forEach((item, idx)=>{
+            const thumb = document.createElement('img');
+            thumb.src = toSrc(item);
+            thumb.dataset.index = idx;
+            thumb.alt = toAlt(item);
+            thumb.addEventListener('click', e=>{ e.stopPropagation(); showImage(idx); });
+            thumb.addEventListener('load', () => { updateCarouselHeightVar(); requestAnimationFrame(centerActiveThumb); });
+            carouselInner.appendChild(thumb);
+        });
+        updateCarouselHeightVar();
+        requestAnimationFrame(centerActiveThumb);
     }
     function open(index, group, opts){
         const arr = Array.isArray(group) ? group.slice() : Array.from(group || []);
@@ -79,6 +94,7 @@
         overlay.style.display = 'flex';
         document.body.style.overflow = 'hidden';
         requestAnimationFrame(()=>{
+            updateCarouselHeightVar();
             overlay.style.opacity = 1;
             showImage(currentIndex);
         });
@@ -131,5 +147,33 @@
             imgs.forEach((img, idx)=> img.addEventListener('click', ()=> open(idx, imgs, { enableScroll: !!(opts&&opts.enableScroll) })));
         });
     }
+    function debounce(fn, ms = 80){ let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=> fn(...a), ms); }; }
+    const refreshCarouselLayout = debounce(()=>{
+        updateCarouselHeightVar();
+        centerActiveThumb();
+    }, 80);
+    window.addEventListener('resize', ()=>{ if (overlay.style.display === 'flex') refreshCarouselLayout(); });
+    window.addEventListener('orientationchange', ()=>{ if (overlay.style.display === 'flex') refreshCarouselLayout(); });
+    if (window.ResizeObserver){
+        const ro = new ResizeObserver(()=>{ if (overlay.style.display === 'flex') refreshCarouselLayout(); });
+        ro.observe(carouselInner);
+        ro.observe(carousel);
+    }
+    const originalBuild = buildCarouselFromGroup;
+    buildCarouselFromGroup = function(group){
+        originalBuild(group);
+        const thumbs = Array.from(carouselInner.querySelectorAll('img'));
+        thumbs.forEach(t => t.addEventListener('load', refreshCarouselLayout, { once: true }));
+        requestAnimationFrame(() => refreshCarouselLayout());
+    };
+    const ensureRecenterAfterShow = debounce(()=>{ centerActiveThumb(); updateCarouselHeightVar(); }, 120);
+    const origShowImage = showImage;
+    showImage = function(index){
+        origShowImage(index);
+        ensureRecenterAfterShow();
+        const img = overlay.querySelector('.main-view');
+        if (img && !img.complete) img.addEventListener('load', ensureRecenterAfterShow, { once: true });
+        else setTimeout(ensureRecenterAfterShow, 80);
+    };
     window.GalleryOverlay = { open, close, attachFromNodeList, attachGroupsByContainer };
 })();
