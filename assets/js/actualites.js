@@ -166,14 +166,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const allImages = document.querySelectorAll('.post-photos img');
     if (!allImages.length) return;
 
-    allImages.forEach(img => {
-        const postPhotos = img.closest('.post-photos');
-        const groupImages = Array.from(postPhotos.querySelectorAll('img'));
-        const indexInGroup = groupImages.indexOf(img);
-        img.addEventListener('click', () => {
-            if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
-                window.GalleryOverlay.open(indexInGroup, groupImages, { enableScroll: false });
-            }
+    if (window.GalleryOverlay && typeof window.GalleryOverlay.attachGroupsByContainer === 'function') {
+        window.GalleryOverlay.attachGroupsByContainer('.post-photos', 'img', { enableScroll: false });
+    } else {
+        allImages.forEach(img => {
+            const postPhotos = img.closest('.post-photos');
+            const groupImages = Array.from(postPhotos.querySelectorAll('img'));
+            const indexInGroup = groupImages.indexOf(img);
+            img.addEventListener('click', () => {
+                if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
+                    window.GalleryOverlay.open(indexInGroup, groupImages, { enableScroll: false });
+                }
+            });
         });
-    });
+    }
 });

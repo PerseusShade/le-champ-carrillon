@@ -22,14 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tooltip.setAttribute('role', 'tooltip');
     document.body.appendChild(tooltip);
 
-    const galleryOverlayEl = document.querySelector('.gallery-overlay');
-    if (galleryOverlayEl) {
-        const baseOverlayZ = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--overlay-z')) || 999;
-        galleryOverlayEl.style.zIndex = String(baseOverlayZ + 100);
-        galleryOverlayEl.style.display = galleryOverlayEl.style.display || 'none';
-        galleryOverlayEl.style.opacity = galleryOverlayEl.style.opacity || 0;
-        galleryOverlayEl.style.transition = galleryOverlayEl.style.transition || 'opacity 200ms ease';
-    }
+    const baseOverlayZ = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--overlay-z')) || 999;
 
     function pxToNumber(px) { return px ? parseFloat(String(px).replace('px',''))||0 : 0; }
 
@@ -144,52 +137,27 @@ document.addEventListener('DOMContentLoaded', () => {
         bottomInfo.style.zIndex = (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--overlay-z')) || 999) + 12;
     }
 
-    let galleryImages = [];
-    let galleryCurrentIndex = 0;
-
-    function clearGalleryLocal() {
-        galleryImages = [];
-        galleryCurrentIndex = 0;
-    }
-
-    function showGalleryImage(index) {
-        galleryCurrentIndex = index;
-        if (!galleryImages[galleryCurrentIndex]) return;
-        if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
-            window.GalleryOverlay.open(galleryCurrentIndex, galleryImages, { enableScroll: false });
-        }
+    function clearGallery() {
     }
 
     function openGalleryWith(images, startIndex = 0) {
         if (!Array.isArray(images) || images.length === 0) return;
-        galleryImages = images.slice();
-        galleryCurrentIndex = Math.min(Math.max(0, startIndex), galleryImages.length - 1);
+        const full = images.map(s => isAbsolutePath(s) ? s : resolveImagePath(s));
         if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
-            window.GalleryOverlay.open(galleryCurrentIndex, galleryImages, { enableScroll: false });
+            window.GalleryOverlay.open(startIndex, full, { enableScroll: false });
         }
     }
 
-    function closeGallery() {
-        if (window.GalleryOverlay && typeof window.GalleryOverlay.close === 'function') {
-            window.GalleryOverlay.close();
-        }
-        clearGalleryLocal();
-    }
+    function isAbsolutePath(p) { return typeof p === 'string' && (p.startsWith('/') || p.startsWith('http://') || p.startsWith('https://')); }
+
+    closeGallery = function() {
+        if (window.GalleryOverlay && typeof window.GalleryOverlay.close === 'function') window.GalleryOverlay.close();
+        clearGallery();
+    };
 
     function navigateGallery(direction) {
-        if (!galleryImages || galleryImages.length === 0) return;
-        galleryCurrentIndex = (galleryCurrentIndex + direction + galleryImages.length) % galleryImages.length;
-        showGalleryImage(galleryCurrentIndex);
+        if (!window.GalleryOverlay || typeof window.GalleryOverlay.open !== 'function') return;
     }
-
-    function attachThumbClick(box, images, idx) {
-        box.addEventListener('click', (e) => {
-            e.stopPropagation();
-            openGalleryWith(images, idx);
-        });
-    }
-
-    closeGallery();
 
     async function loadPoints() {
         try {
@@ -326,7 +294,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 box.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        openGalleryWith(images, idx);
+                        const full = images.map(s => isAbsolutePath(s) ? s : resolveImagePath(s));
+                        if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
+                            window.GalleryOverlay.open(idx, full, { enableScroll: false });
+                        }
                 });
 
                 box.appendChild(imgEl);
@@ -398,10 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape') {
             if (window.GalleryOverlay && typeof window.GalleryOverlay.close === 'function') window.GalleryOverlay.close();
             fadeOutExistingContent();
-        } else if (e.key === 'ArrowRight' && galleryImages.length && document.querySelector('.gallery-overlay') && document.querySelector('.gallery-overlay').style.display === 'flex') {
-            navigateGallery(1);
-        } else if (e.key === 'ArrowLeft' && galleryImages.length && document.querySelector('.gallery-overlay') && document.querySelector('.gallery-overlay').style.display === 'flex') {
-            navigateGallery(-1);
         }
     });
 

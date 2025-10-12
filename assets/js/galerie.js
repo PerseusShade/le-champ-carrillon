@@ -61,17 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
             function animateByRows() {
                 clearTimers();
                 rowsAnimated = false;
-
                 requestAnimationFrame(() => {
                     const rows = computeRows(8);
-
                     const delayBeforeTitle = 200;
                     const startAfterTitle = 300;
                     const delayBetweenRows = 200;
-
                     if (title) title.classList.remove('show');
                     items.forEach(it => it.classList.remove('show'));
-
                     const visibleRows = [];
                     const hiddenRows = [];
                     const viewportBottom = window.innerHeight;
@@ -80,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (r.top < viewportBottom - margin) visibleRows.push(r);
                         else hiddenRows.push(r);
                     });
-
                     const tTitle = setTimeout(() => {
                         if (title) title.classList.add('show');
                         visibleRows.forEach((row, rowIndex) => {
@@ -92,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             }, startAfterTitle + rowIndex * delayBetweenRows);
                             animationTimers.push(t);
                         });
-
                         if (hiddenRows.length > 0) {
                             const lastRowDelay = startAfterTitle + Math.max(0, visibleRows.length - 1) * delayBetweenRows;
                             const tHidden = setTimeout(() => {
@@ -101,13 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             }, lastRowDelay);
                             animationTimers.push(tHidden);
                         }
-
                         if (visibleRows.length === 0) {
                             items.forEach(it => it.classList.add('show'));
                             rowsAnimated = true;
                         }
                     }, delayBeforeTitle);
-
                     animationTimers.push(tTitle);
                 });
             }
@@ -125,16 +117,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const allImages = grid.querySelectorAll('img');
 
-            allImages.forEach((img, idx) => {
-                img.addEventListener('click', () => {
-                    if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
-                        window.GalleryOverlay.open(idx, Array.from(allImages), { enableScroll: true });
-                    }
-                });
-            });
-
             if (window.GalleryOverlay && typeof window.GalleryOverlay.attachFromNodeList === 'function') {
                 window.GalleryOverlay.attachFromNodeList(allImages, { enableScroll: true });
+            } else {
+                allImages.forEach((img, idx) => {
+                    img.addEventListener('click', () => {
+                        if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
+                            window.GalleryOverlay.open(idx, Array.from(allImages), { enableScroll: true });
+                        }
+                    });
+                });
             }
         })
 });

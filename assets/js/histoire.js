@@ -54,108 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     preloadImagesFromDateJson();
 
-    const galleryOverlay = document.createElement('div');
-    galleryOverlay.className = 'gallery-overlay';
-    galleryOverlay.innerHTML = `
-        <div class="gallery-close" title="Fermer">&times;</div>
-        <div class="gallery-nav gallery-prev">&#10094;</div>
-        <img class="main-view" src="" alt="">
-        <div class="gallery-nav gallery-next">&#10095;</div>
-        <div class="gallery-carousel"><div class="gallery-carousel-inner"></div></div>
-    `;
-    document.body.appendChild(galleryOverlay);
-    galleryOverlay.style.display = 'none';
-    galleryOverlay.style.opacity = 0;
-    galleryOverlay.style.transition = 'opacity 200ms ease';
-
-    const mainImg = galleryOverlay.querySelector('.main-view');
-    const closeBtnGallery = galleryOverlay.querySelector('.gallery-close');
-    const prevBtn = galleryOverlay.querySelector('.gallery-prev');
-    const nextBtn = galleryOverlay.querySelector('.gallery-next');
-    const carouselInner = galleryOverlay.querySelector('.gallery-carousel-inner');
-
-    let galleryImages = [];
-    let galleryCurrentIndex = 0;
-
-    function clearGallery() {
-        carouselInner.innerHTML = '';
-        galleryImages = [];
-        galleryCurrentIndex = 0;
-    }
-
-    function showGalleryImage(index) {
-        galleryCurrentIndex = index;
-        if (!galleryImages[galleryCurrentIndex]) return;
-        mainImg.style.opacity = 0;
-        setTimeout(() => {
-            mainImg.src = galleryImages[galleryCurrentIndex];
-            mainImg.alt = `Image ${galleryCurrentIndex + 1}`;
-            mainImg.style.opacity = 1;
-        }, 80);
-        const thumbs = Array.from(carouselInner.querySelectorAll('img'));
-        thumbs.forEach(thumb => thumb.classList.toggle('active', parseInt(thumb.dataset.index, 10) === galleryCurrentIndex));
-        const wrapperW = galleryOverlay.querySelector('.gallery-carousel').clientWidth || window.innerWidth;
-        const active = thumbs[galleryCurrentIndex];
-        if (!active) return;
-        const thumbW = active.getBoundingClientRect().width || 80;
-        const pad = Math.max((wrapperW - thumbW) / 2, 0);
-        carouselInner.style.paddingLeft = `${pad}px`;
-        carouselInner.style.paddingRight = `${pad}px`;
-        const offset = active.offsetLeft + thumbW / 2;
-        const translateX = wrapperW / 2 - offset;
-        carouselInner.style.transform = `translateX(${translateX}px)`;
-    }
-
-    function openGalleryWith(images, startIndex = 0) {
-        if (!Array.isArray(images) || images.length === 0) return;
-        clearGallery();
-        galleryImages = images.map(s => isAbsolutePath(s) ? s : `../histoire/${String(s).replace(/^\/+/, '')}`);
-        galleryImages.forEach((src, idx) => {
-            const t = document.createElement('img');
-            t.src = src;
-            t.dataset.index = idx;
-            t.alt = `vignette ${idx+1}`;
-            t.addEventListener('click', (e) => { e.stopPropagation(); showGalleryImage(idx); });
-            carouselInner.appendChild(t);
-        });
-        document.body.classList.add('overlay-open');
-        galleryOverlay.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        requestAnimationFrame(() => {
-            galleryOverlay.style.opacity = 1;
-            showGalleryImage(Math.min(Math.max(0, startIndex), galleryImages.length - 1));
-        });
-    }
-
-    function closeGallery() {
-        galleryOverlay.style.opacity = 0;
-        galleryOverlay.addEventListener('transitionend', function hide() {
-            galleryOverlay.style.display = 'none';
-            document.body.style.overflow = '';
-            document.body.classList.remove('overlay-open');
-            galleryOverlay.removeEventListener('transitionend', hide);
-            clearGallery();
-        }, { once: true });
-    }
-
-    function navigateGallery(direction) {
-        if (galleryImages.length === 0) return;
-        galleryCurrentIndex = (galleryCurrentIndex + direction + galleryImages.length) % galleryImages.length;
-        showGalleryImage(galleryCurrentIndex);
-    }
-
-    closeBtnGallery.addEventListener('click', (e) => { e.stopPropagation(); closeGallery(); });
-    prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateGallery(-1); });
-    nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navigateGallery(1); });
-    galleryOverlay.addEventListener('click', (e) => { if (e.target === galleryOverlay) closeGallery(); });
-    document.addEventListener('keydown', (e) => {
-        if (galleryOverlay.style.display === 'flex') {
-            if (e.key === 'Escape') closeGallery();
-            else if (e.key === 'ArrowRight') navigateGallery(1);
-            else if (e.key === 'ArrowLeft') navigateGallery(-1);
-        }
-    });
-
     function measureNaturalSize(el) {
         const clone = el.cloneNode(true);
         clone.style.position = 'absolute';
@@ -220,8 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
         img.addEventListener('click', (e) => {
             e.stopPropagation();
             if (!Array.isArray(galleryImagesForDate) || galleryImagesForDate.length === 0) return;
-            const galleryFullPaths = galleryImagesForDate.map(s => `../assets/img/histoire/${s}`);
-            openGalleryWith(galleryFullPaths, Math.max(0, Math.min(galleryIndex || 0, galleryFullPaths.length - 1)));
+            const galleryFullPaths = galleryImagesForDate.map(s => isAbsolutePath(s) ? s : `../assets/img/histoire/${String(s).replace(/^\/+/, '')}`);
+            if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
+                window.GalleryOverlay.open(Math.max(0, Math.min(galleryIndex || 0, galleryFullPaths.length - 1)), galleryFullPaths, { enableScroll: false });
+            }
         });
         cell.appendChild(img);
     }
@@ -310,13 +210,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const prev = document.querySelector('.timeline-overlay');
             if (prev && prev.parentElement) prev.parentElement.removeChild(prev);
 
-            const overlay = document.createElement('div');
-            overlay.className = 'timeline-overlay';
-            document.body.appendChild(overlay);
+            const overlayNode = document.createElement('div');
+            overlayNode.className = 'timeline-overlay';
+            document.body.appendChild(overlayNode);
 
             const wrapper = document.createElement('div');
             wrapper.className = 'overlay-wrapper';
-            overlay.appendChild(wrapper);
+            overlayNode.appendChild(wrapper);
 
             const area = document.createElement('div');
             area.className = 'overlay-area';
@@ -398,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gridContainer.style.opacity = '0';
             gridContainer.style.transform = 'translateY(10px)';
             gridContainer.style.transition = 'opacity 360ms ease, transform 360ms cubic-bezier(.22,.9,.31,1)';
-            overlay.appendChild(gridContainer);
+            overlayNode.appendChild(gridContainer);
 
             const cellBorder = '2px solid var(--main-orange)';
             const cellRadius = '6px';
@@ -548,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (ph && ph.parentElement) ph.parentElement.removeChild(ph);
 
                     if (gridContainer && gridContainer.parentElement) gridContainer.parentElement.removeChild(gridContainer);
-                    if (overlay && overlay.parentElement) overlay.parentElement.removeChild(overlay);
+                    if (overlayNode && overlayNode.parentElement) overlayNode.parentElement.removeChild(overlayNode);
                     if (closeBtn && closeBtn.parentElement) closeBtn.parentElement.removeChild(closeBtn);
 
                     timeline.classList.remove('no-hover');
@@ -628,4 +528,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
