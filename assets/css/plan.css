@@ -221,3 +221,8 @@ html, body {
 }
 
 .hidden { display: none !important; }
+
+.plan-frame {
+    will-change: transform;
+    transition: transform 260ms ease;
+}
