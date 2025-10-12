@@ -1,132 +1,117 @@
-document.addEventListener('DOMContentLoaded', () => {
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
+(function () {
+    function waitForSelector(selector, timeout = 3000, interval = 50) {
+        return new Promise(resolve => {
+            const found = document.querySelector(selector);
+            if (found) return resolve(found);
+            let elapsed = 0;
+            const iv = setInterval(() => {
+                const el = document.querySelector(selector);
+                if (el) {
+                    clearInterval(iv);
+                    return resolve(el);
+                }
+                elapsed += interval;
+                if (elapsed >= timeout) {
+                    clearInterval(iv);
+                    return resolve(null);
+                }
+            }, interval);
+        });
     }
 
-    const manifestUrl = '../assets/img/galerie/manifest.json';
+    function staggerReveal(nodes, baseDelay = 80, step = 120) {
+        if (!nodes || nodes.length === 0) return;
+        nodes.forEach((el, i) => {
+            el.classList.add('pre-fade');
+            el.style.transitionDelay = '';
+        });
 
-    fetch(manifestUrl)
-        .then(res => {
-            if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
-            return res.json();
-        })
-        .then(images => {
-            const shuffled = shuffle(images.slice());
-            const grid = document.getElementById('photos-grid');
-
-            grid.innerHTML = '';
-            shuffled.forEach((file, index) => {
-                const div = document.createElement('div');
-                div.className = 'gallery-item';
-                const img = document.createElement('img');
-                img.src = `../assets/img/galerie/${file}`;
-                img.alt = `Photo ${index + 1}`;
-                img.dataset.index = index;
-                div.appendChild(img);
-                grid.appendChild(div);
+        requestAnimationFrame(() => {
+            nodes.forEach((el, i) => {
+                const delay = baseDelay + i * step;
+                el.style.transitionDelay = `${delay}ms`;
+                setTimeout(() => {
+                    el.classList.add('fade-in');
+                    el.classList.remove('pre-fade');
+                }, delay);
             });
+        });
+    }
 
-            const title = document.querySelector('.galerie-title');
-            const items = Array.from(grid.querySelectorAll('.gallery-item'));
-
-            if (title) title.classList.add('fade-in');
-            items.forEach(item => item.classList.add('fade-in'));
-
-            let animationTimers = [];
-            let rowsAnimated = false;
-            function clearTimers() {
-                animationTimers.forEach(id => clearTimeout(id));
-                animationTimers = [];
-            }
-
-            function computeRows(tolerance = 8) {
-                const rows = [];
-                items.forEach(item => {
-                    const top = Math.round(item.getBoundingClientRect().top);
-                    let row = rows.find(r => Math.abs(r.top - top) <= tolerance);
-                    if (!row) {
-                        row = { top, items: [] };
-                        rows.push(row);
-                    }
-                    row.items.push(item);
-                });
-                rows.sort((a, b) => a.top - b.top);
-                return rows;
-            }
-
-            function animateByRows() {
-                clearTimers();
-                rowsAnimated = false;
-                requestAnimationFrame(() => {
-                    const rows = computeRows(8);
-                    const delayBeforeTitle = 200;
-                    const startAfterTitle = 300;
-                    const delayBetweenRows = 200;
-                    if (title) title.classList.remove('show');
-                    items.forEach(it => it.classList.remove('show'));
-                    const visibleRows = [];
-                    const hiddenRows = [];
-                    const viewportBottom = window.innerHeight;
-                    const margin = 20;
-                    rows.forEach(r => {
-                        if (r.top < viewportBottom - margin) visibleRows.push(r);
-                        else hiddenRows.push(r);
-                    });
-                    const tTitle = setTimeout(() => {
-                        if (title) title.classList.add('show');
-                        visibleRows.forEach((row, rowIndex) => {
-                            const t = setTimeout(() => {
-                                row.items.forEach(it => it.classList.add('show'));
-                                if (rowIndex === visibleRows.length - 1) {
-                                    rowsAnimated = true;
-                                }
-                            }, startAfterTitle + rowIndex * delayBetweenRows);
-                            animationTimers.push(t);
-                        });
-                        if (hiddenRows.length > 0) {
-                            const lastRowDelay = startAfterTitle + Math.max(0, visibleRows.length - 1) * delayBetweenRows;
-                            const tHidden = setTimeout(() => {
-                                hiddenRows.forEach(r => r.items.forEach(it => it.classList.add('show')));
-                                if (visibleRows.length === 0) rowsAnimated = true;
-                            }, lastRowDelay);
-                            animationTimers.push(tHidden);
-                        }
-                        if (visibleRows.length === 0) {
-                            items.forEach(it => it.classList.add('show'));
-                            rowsAnimated = true;
-                        }
-                    }, delayBeforeTitle);
-                    animationTimers.push(tTitle);
-                });
-            }
-
-            animateByRows();
-
-            let resizeDebounce = null;
-            window.addEventListener('resize', () => {
-                if (rowsAnimated) return;
-                clearTimeout(resizeDebounce);
-                resizeDebounce = setTimeout(() => {
-                    animateByRows();
-                }, 140);
+    document.addEventListener('DOMContentLoaded', async () => {
+        const callBtn = document.getElementById('call-button');
+        const tel = '33659434901';
+        if (callBtn) {
+            callBtn.addEventListener('click', e => {
+                e.preventDefault();
+                const url = `https://wa.me/${tel}`;
+                window.open(url, '_blank');
             });
+        }
 
-            const allImages = grid.querySelectorAll('img');
+        const form = document.getElementById('contact-form');
+        if (form) {
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                const name = encodeURIComponent(form.name.value || '');
+                const email = encodeURIComponent(form.email.value || '');
+                const message = encodeURIComponent(form.message.value || '');
 
-            if (window.GalleryOverlay && typeof window.GalleryOverlay.attachFromNodeList === 'function') {
-                window.GalleryOverlay.attachFromNodeList(allImages, { enableScroll: true });
-            } else {
-                allImages.forEach((img, idx) => {
-                    img.addEventListener('click', () => {
-                        if (window.GalleryOverlay && typeof window.GalleryOverlay.open === 'function') {
-                            window.GalleryOverlay.open(idx, Array.from(allImages), { enableScroll: true });
-                        }
+                const mailto = `mailto:lechampcarrillon@gmail.com`
+                    + `?subject=Message de ${name}`
+                    + `&body=Nom : ${name}%0D%0AEmail : ${email}%0D%0A%0D%0A${message}`;
+
+                window.location.href = mailto;
+            });
+        }
+
+        (function loadRandomGallery() {
+            const photosContainer = document.querySelector('.photos');
+            if (!photosContainer) return;
+
+            fetch('../assets/img/galerie/manifest.json')
+                .then(res => res.ok ? res.json() : Promise.reject('manifest non ok'))
+                .then(images => {
+                    if (!Array.isArray(images) || images.length === 0) return;
+                    const shuffled = images.slice().sort(() => 0.5 - Math.random());
+                    const selected = shuffled.slice(0, 4);
+
+                    photosContainer.innerHTML = '';
+                    selected.forEach(img => {
+                        const el = document.createElement('img');
+                        el.src = `../assets/img/galerie/${img}`;
+                        el.alt = 'Photo du champ';
+                        photosContainer.appendChild(el);
                     });
-                });
-            }
-        })
-});
+                })
+        })();
+
+        const vp = document.querySelector('.voirplus-btn');
+        if (vp) {
+            vp.addEventListener('click', async e => {
+                e.preventDefault();
+
+                const selector = '#header a[href="/galerie/"]"]';
+                const galerieLink = await waitForSelector(selector, 4000);
+
+                if (galerieLink) {
+                    galerieLink.click();
+                }
+            });
+        }
+
+        const selectorsInOrder = [
+            '.intro',
+            '.contact-info',
+            '.map',
+            '.gallery',
+            '.formulaire',
+            'footer'
+        ];
+        const nodes = selectorsInOrder
+            .map(s => document.querySelector(s))
+            .filter(Boolean);
+
+        staggerReveal(nodes, 80, 120);
+    });
+})();
