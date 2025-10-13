@@ -143,8 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const rootStyles = getComputedStyle(planRoot);
         const rootPadL = pxToNumber(rootStyles.paddingLeft);
         const rootPadR = pxToNumber(rootStyles.paddingRight);
-        const left = Math.round(rootRect.left + rootPadL + ROTATED_SIDE_MARGIN);
-        const width = Math.max(40, Math.round(rootRect.width - rootPadL - rootPadR - ROTATED_SIDE_MARGIN * 2));
+
+        const effectiveLeftPad = Math.min(rootPadL, ROTATED_SIDE_MARGIN);
+        const effectiveRightPad = Math.min(rootPadR, ROTATED_SIDE_MARGIN);
+
+        const left = Math.round(rootRect.left + effectiveLeftPad);
+        const width = Math.max(40, Math.round(rootRect.width - effectiveLeftPad - effectiveRightPad));
         return { areaLeft: left, areaWidth: width };
     }
 
@@ -204,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFrameRotation();
         positionPoints();
         updateOpenLayout();
+        updateDotAndTextSizes();
         const active = document.querySelector('.map-point.active');
         if (tooltip.classList.contains('show') && active) positionTooltip(active);
     });
@@ -244,6 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const imgRect = img.getBoundingClientRect();
         positionBottomInfo(imgRect);
+
+        updateDotAndTextSizes();
     }
 
     function positionBottomInfo(frameRect) {
@@ -315,8 +322,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.GalleryOverlay && typeof window.GalleryOverlay.close === 'function') window.GalleryOverlay.close();
         clearGallery();
     };
-
-    function navigateGallery(direction) { if (!window.GalleryOverlay || typeof window.GalleryOverlay.open !== 'function') return; }
 
     function updateOpenLayout() {
         if (!currentOpen) return;
@@ -497,7 +502,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 overlay.appendChild(btn);
 
                 btn.addEventListener('mouseenter', () => {
-                    const payload = JSON.parse(btn.dataset.payload);
+                    const isRotated = frame && frame.classList.contains('rotated');
+                    if (isRotated && btn.classList.contains('active')) return;
+
+                    const payload = JSON.parse(btn.dataset.payload || '{}');
                     tooltip.textContent = payload.title || '';
                     tooltip.classList.add('show');
                     positionTooltip(btn);
@@ -791,9 +799,32 @@ document.addEventListener('DOMContentLoaded', () => {
         if (prevTransition) img.style.transition = prevTransition; else img.style.transition = '';
     }
 
+    function clampNumber(v, min, max) {
+        return Math.max(min, Math.min(max, v));
+    }
+
+    function updateDotAndTextSizes() {
+        if (!img) return;
+        const cs = getComputedStyle(img);
+        const borderLeft = pxToNumber(cs.borderLeftWidth);
+        const borderRight = pxToNumber(cs.borderRightWidth);
+        const contentWidth = Math.max(0, img.clientWidth - borderLeft - borderRight);
+        const contentHeight = Math.max(0, img.clientHeight - pxToNumber(cs.borderTopWidth) - pxToNumber(cs.borderBottomWidth));
+
+        document.documentElement.style.setProperty('--plan-width', `${Math.round(contentWidth)}px`);
+
+        const computedDot = Math.round(clampNumber(contentWidth * 0.025, 8, 28));
+        document.documentElement.style.setProperty('--dot-size', `${computedDot}px`);
+
+        const halo = Math.max(1, Math.round(computedDot * 0.18));
+        document.documentElement.style.setProperty('--halo-border-size', `${halo}px`);
+    }
+
     (async function initSequence() {
         await loadPoints();
         await new Promise(r => setTimeout(r, 60));
+
+        updateDotAndTextSizes();
 
         if (!initialRevealDone) {
             await runMapIntroZoom();
