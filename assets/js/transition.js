@@ -61,6 +61,9 @@
 }
 
 #header.showing { pointer-events: auto; opacity: 1; transition: opacity 250ms ease; }
+
+#header.initial-hidden { transition: opacity 300ms ease; }
+
 `;
     const style = document.createElement('style');
     style.setAttribute('data-transition-styles', '1');
@@ -87,10 +90,10 @@
                 }
             };
             const cleanup = () => {
-                target.removeEventListener('transitionend', onEnd);
+                try { target.removeEventListener('transitionend', onEnd); } catch(e){}
                 clearTimeout(timer);
             };
-            target.addEventListener('transitionend', onEnd);
+            try { target.addEventListener('transitionend', onEnd); } catch(e){}
             const timer = setTimeout(() => {
                 if (done) return;
                 done = true;
@@ -111,10 +114,10 @@
                 resolve(e);
             };
             const cleanup = () => {
-                target.removeEventListener('animationend', onEnd);
+                try { target.removeEventListener('animationend', onEnd); } catch(e){}
                 clearTimeout(timer);
             };
-            target.addEventListener('animationend', onEnd);
+            try { target.addEventListener('animationend', onEnd); } catch(e){}
             const timer = setTimeout(() => {
                 if (done) return;
                 done = true;
@@ -175,12 +178,112 @@
         }
     }
 
+    function resolveHrefFromHeader(siteHeader) {
+        let firstLink = null;
+        if (siteHeader) {
+            firstLink = siteHeader.querySelector('.main-nav a') || siteHeader.querySelector('a');
+        }
+        if (!firstLink) firstLink = headerWrapper.querySelector('.main-nav a') || headerWrapper.querySelector('a');
+        const href = firstLink ? (firstLink.getAttribute('href') || '/') : '/';
+        try { return new URL(href, document.baseURI).href; } catch(e) { return href; }
+    }
+
+    function pollForBurger(maxWait = 700) {
+        const start = performance.now();
+        return new Promise(resolve => {
+            const tryFind = () => {
+                const b = headerWrapper.querySelector('.burger-btn') || document.querySelector('.burger-btn');
+                if (b) return resolve(b);
+                if (performance.now() - start >= maxWait) return resolve(null);
+                requestAnimationFrame(tryFind);
+            };
+            tryFind();
+        });
+    }
+
+    async function fadeInBurgerAndRedirect(siteHeader, destHref) {
+        try {
+            const burger = await pollForBurger(700);
+            if (!burger) {
+                window.location.href = destHref;
+                return;
+            }
+
+            const prevTransition = burger.style.transition || '';
+            const prevOpacity = burger.style.opacity || '';
+            const prevTransform = burger.style.transform || '';
+            const prevPointerEvents = burger.style.pointerEvents || '';
+
+            burger.style.transition = 'opacity 420ms ease, transform 320ms cubic-bezier(.2,.9,.3,1)';
+            burger.style.opacity = '0';
+            burger.style.transform = 'scale(0.92) translateZ(0)';
+            burger.style.pointerEvents = 'auto';
+
+            void burger.offsetHeight;
+
+            let done = false;
+            const onEnd = (ev) => {
+                if (ev && ev.propertyName && ev.propertyName !== 'opacity' && ev.propertyName !== 'transform') return;
+                if (done) return;
+                done = true;
+                cleanup();
+                setTimeout(() => { window.location.href = destHref; }, 30);
+            };
+            const cleanup = () => {
+                try { burger.removeEventListener('transitionend', onEnd); } catch(e){}
+                clearTimeout(fallbackTimer);
+                try {
+                    if (prevTransition) burger.style.setProperty('transition', prevTransition);
+                    else burger.style.removeProperty('transition');
+                    if (prevOpacity) burger.style.setProperty('opacity', prevOpacity);
+                    else burger.style.removeProperty('opacity');
+                    if (prevTransform) burger.style.setProperty('transform', prevTransform);
+                    else burger.style.removeProperty('transform');
+                    if (prevPointerEvents) burger.style.setProperty('pointer-events', prevPointerEvents);
+                    else burger.style.removeProperty('pointer-events');
+                } catch(e){}
+            };
+
+            try { burger.addEventListener('transitionend', onEnd); } catch(e){}
+
+            requestAnimationFrame(() => {
+                burger.style.opacity = '1';
+                burger.style.transform = 'scale(1) translateZ(0)';
+            });
+
+            const fallbackTimer = setTimeout(() => {
+                if (done) return;
+                done = true;
+                cleanup();
+                window.location.href = destHref;
+            }, 900);
+
+        } catch (e) {
+            try { window.location.href = destHref; } catch(e){}
+        }
+    }
+
+    function maybeCompactRedirect(siteHeader) {
+        try {
+            const isCompact = document.documentElement.classList.contains('position-compact');
+            if (!isCompact) return false;
+
+            const dest = resolveHrefFromHeader(siteHeader);
+            fadeInBurgerAndRedirect(siteHeader, dest);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
     const observer = new MutationObserver((mutations) => {
         for (const m of mutations) {
             if (m.type === 'childList' && m.addedNodes.length) {
                 const siteHeader = headerWrapper.querySelector('.site-header');
                 if (siteHeader) {
-                    playIntroSequential(siteHeader).catch(() => {});
+                    if (!maybeCompactRedirect(siteHeader)) {
+                        playIntroSequential(siteHeader).catch(() => {});
+                    }
                     observer.disconnect();
                     return;
                 }
@@ -193,7 +296,9 @@
     setTimeout(() => {
         const existing = headerWrapper.querySelector('.site-header');
         if (existing && !played) {
-            playIntroSequential(existing).catch(() => {});
+            if (!maybeCompactRedirect(existing)) {
+                playIntroSequential(existing).catch(() => {});
+            }
             observer.disconnect();
         }
     }, 400);
@@ -201,7 +306,9 @@
     setTimeout(() => {
         const existing = headerWrapper.querySelector('.site-header');
         if (existing && !played) {
-            playIntroSequential(existing).catch(() => {});
+            if (!maybeCompactRedirect(existing)) {
+                playIntroSequential(existing).catch(() => {});
+            }
         }
     }, 2500);
 })();
