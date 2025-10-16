@@ -3,7 +3,6 @@
     --main-orange: #F7931E;
     --main-brown: #7B2D2D;
     --main-bg: #f9f9f6;
-    --title-box-height: 56px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -61,8 +60,17 @@ html, body { height: 100%; font-family: "Segoe UI", sans-serif; background-color
     font-weight: 600;
     -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
+
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.panel:hover .label,
+.panel:focus .label,
+.panel:focus-within .label {
     opacity: 1;
-    transform: none;
+    transform: translateY(0);
 }
 
 .activites-container:not(.locked) .panel:hover { flex: 2.5; }
@@ -71,7 +79,9 @@ html, body { height: 100%; font-family: "Segoe UI", sans-serif; background-color
     transition: opacity 0.5s ease, flex 0s !important;
     pointer-events: none;
 }
-.activites-container.locked .panel.active { flex: 2.5 !important; }
+.activites-container.locked .panel.active {
+    flex: 2.5 !important;
+}
 .activites-container.locked .panel:not(.active) { flex: 1 !important; }
 
 .fullscreen-panel {
@@ -148,7 +158,6 @@ html, body { height: 100%; font-family: "Segoe UI", sans-serif; background-color
 }
 
 .fullscreen-panel.fullscreen .title-box {
-    top: calc(var(--header-height) + 40px);
     bottom: auto;
     transform: translateX(-50%) translateY(0);
 }
@@ -194,8 +203,83 @@ html, body { height: 100%; font-family: "Segoe UI", sans-serif; background-color
     overflow: auto;
 }
 
+@media (max-width: 640px) and (orientation: portrait) {
+    html, body { overflow: auto; }
+
+    .activites-container {
+        flex-direction: column;
+        height: calc(100vh - var(--header-height, 60px));
+        gap: 8px;
+        padding: 8px;
+        overflow-y: auto;
+    }
+
+    .panel {
+        flex: none;
+        height: calc((100vh - var(--header-height, 60px) - 40px) / 4);
+        transition: opacity 0.35s ease;
+        border-radius: 10px;
+    }
+
+    .panel,
+    .fullscreen-panel {
+        background-attachment: scroll !important;
+    }
+
+    .fullscreen-panel {
+        will-change: top, left, width, height;
+        transition: top 0.5s ease-in-out,
+                    left 0.5s ease-in-out,
+                    width 0.5s ease-in-out,
+                    height 0.5s ease-in-out,
+                    border-radius 0.35s ease-in-out;
+    }
+
+    .activites-container:not(.locked) .panel:hover { flex: none; }
+
+    .label {
+        opacity: 1 !important;
+        transform: none !important;
+        pointer-events: none;
+        font-size: 1rem !important;
+        padding: 0.4rem 0.6rem !important;
+        margin-bottom: 0.8rem !important;
+        border-radius: 8px !important;
+        border-width: 2px !important;
+    }
+
+    .fullscreen-panel .title-box {
+        transform: translateX(-50%) !important;
+    }
+
+    .fullscreen-panel .info-wrap,
+    .fullscreen-panel.fullscreen .info-wrap {
+        padding: 0.6rem;
+    }
+    .fullscreen-panel .info-box {
+        font-size: 0.95rem;
+        padding: 0.8rem;
+        width: calc(100% - 32px);
+    }
+
+    .panel-inner { align-items: flex-end; }
+
+    .fullscreen-panel .close-btn { width: 38px; height: 38px; font-size: 16px; }
+
+    .activites-container.locked .panel.active {
+        flex: 1 !important;
+    }
+}
+
 @media (max-width: 640px) {
-    :root { --title-box-height: 48px; }
     .fullscreen-panel .info-box { width: calc(100% - 32px); padding: 0.8rem; }
-    .label { font-size: 1.2rem; padding: 0.5rem 0.8rem; }
+    .label {
+        font-size: 1.2rem;
+        padding: 0.5rem 0.8rem;
+    }
+}
+
+.panel:focus .label {
+    opacity: 1;
+    transform: translateY(0);
 }
