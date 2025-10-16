@@ -197,7 +197,12 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             positionPoints();
             const active = document.querySelector('.map-point.active');
-            if (tooltip.classList.contains('show') && active) positionTooltip(active);
+            if (!frame.classList.contains('rotated') && tooltip.classList.contains('show') && active) {
+                positionTooltip(active);
+            } else {
+                tooltip.classList.remove('show');
+                tooltip.setAttribute('aria-hidden', 'true');
+            }
             updateOpenLayout();
         }, 30);
     }
@@ -552,6 +557,11 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.querySelectorAll('.map-point.active').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
 
+        if (frame && frame.classList.contains('rotated')) {
+            tooltip.classList.remove('show');
+            tooltip.setAttribute('aria-hidden', 'true');
+        }
+
         await fadeOutExistingContent();
 
         const images = Array.isArray(payload.images) ? payload.images.slice() : [];
@@ -746,6 +756,10 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.querySelectorAll('.map-point.active').forEach(p => p.classList.remove('active'));
         const mainBox = document.querySelector('.thumb-box.main-image');
         if (mainBox) mainBox.remove();
+
+        tooltip.classList.remove('show');
+        tooltip.setAttribute('aria-hidden', 'true');
+
         await fadeOutExistingContent();
         document.removeEventListener('click', outsideClickListener);
     }
