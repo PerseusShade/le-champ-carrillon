@@ -166,9 +166,7 @@ html, body { height: 100%; font-family: "Segoe UI", sans-serif; background-color
     position: absolute;
     left: 0;
     right: 0;
-    top: 100%;
-    transition: top 0.55s cubic-bezier(.2,.9,.2,1), opacity 0.35s ease, transform 0.35s ease;
-    text-align: justify;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -176,11 +174,12 @@ html, body { height: 100%; font-family: "Segoe UI", sans-serif; background-color
     z-index: 2;
     opacity: 0;
     transform: translateY(12px);
+    transition: top 0.55s cubic-bezier(.2,.9,.2,1), opacity 0.35s ease, transform 0.35s ease;
 }
 
 .fullscreen-panel.fullscreen .info-wrap {
-    top: calc( (var(--header-height) + 50px) + var(--title-box-height) );
-    bottom: 0;
+    top: calc(var(--header-height) + 14vh);
+    bottom: 0vh;
 }
 
 .fullscreen-panel.show-content .info-wrap {
@@ -189,8 +188,8 @@ html, body { height: 100%; font-family: "Segoe UI", sans-serif; background-color
 }
 
 .fullscreen-panel .info-box {
-    max-width: 1000px;
     width: calc(100% - 80px);
+    max-width: 1000px;
     padding: 1rem 1.2rem;
     border-radius: 12px;
     border: 3px solid var(--main-green);
@@ -199,8 +198,10 @@ html, body { height: 100%; font-family: "Segoe UI", sans-serif; background-color
     color: #222;
     font-size: 1rem;
     line-height: 1.4;
-    min-height: 80px;
-    overflow: auto;
+    box-sizing: border-box;
+
+    max-height: 100%;
+    overflow-y: auto;
 }
 
 @media (max-width: 640px) and (orientation: portrait) {
@@ -252,14 +253,15 @@ html, body { height: 100%; font-family: "Segoe UI", sans-serif; background-color
         transform: translateX(-50%) !important;
     }
 
-    .fullscreen-panel .info-wrap,
     .fullscreen-panel.fullscreen .info-wrap {
-        padding: 0.6rem;
+        top: calc(var(--header-height) + 14vh);
+        bottom: 0vh;
     }
+
     .fullscreen-panel .info-box {
-        font-size: 0.95rem;
-        padding: 0.8rem;
         width: calc(100% - 32px);
+        padding: 0.8rem;
+        font-size: 0.95rem;
     }
 
     .panel-inner { align-items: flex-end; }
