@@ -54,6 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function attachPanelHandlers(container) {
         const panels = container.querySelectorAll(".panel");
+
+        const pageOffsetPercent = 0.12;
+
         panels.forEach(panel => {
             panel.addEventListener("click", () => {
                 if (animating) return;
@@ -107,8 +110,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const initialLabelOffset = labelRect.top - rect.top;
 
                 const headerHeightRaw = getComputedStyle(document.documentElement).getPropertyValue('--header-height') || '60px';
-                const headerHeight = parseFloat(headerHeightRaw) || 60;
-                const finalLabelOffset = (headerHeight + 50) - rect.top;
+                const headerHeightFromVar = parseFloat(headerHeightRaw) || 60;
+
+                const titleBoxHeightRaw = getComputedStyle(document.documentElement).getPropertyValue('--title-box-height') || '56px';
+                const titleBoxHeightFromVar = parseFloat(titleBoxHeightRaw) || 56;
 
                 if (cloneLabel) {
                     cloneLabel.classList.add("title-box");
@@ -119,23 +124,33 @@ document.addEventListener("DOMContentLoaded", () => {
                     cloneLabel.style.top = `${initialTopInClone}px`;
                     cloneLabel.style.bottom = "auto";
 
-                    cloneLabel.style.transform = "translateX(-50%) translateY(0)";
-                    cloneLabel.style.transition = "transform 0.45s ease";
+                    cloneLabel.style.transform = "translateX(-50%)";
+                    cloneLabel.style.transition = "top 0.45s ease, transform 0.45s ease";
                     cloneLabel.style.marginBottom = "0";
-
-                    var labelDelta = finalLabelOffset - initialLabelOffset;
                 }
 
+                function computeFinalTopByPercent() {
+                    const offsetPx = window.innerHeight * pageOffsetPercent;
+
+                    let topRelativeToClone = offsetPx;
+
+                    const labelHeight = (cloneLabel ? (cloneLabel.getBoundingClientRect().height || parseFloat(getComputedStyle(cloneLabel).height) || 0) : 0);
+                    const finalTopAdjusted = topRelativeToClone - (labelHeight / 2);
+
+                    return finalTopAdjusted;
+                }
+
+                const finalTopValue = computeFinalTopByPercent();
+
                 requestAnimationFrame(() => {
+                    if (cloneLabel) cloneLabel.style.top = `${finalTopValue}px`;
+
                     void clone.offsetWidth;
+
                     clone.classList.add("fullscreen");
 
-                    if (cloneLabel) {
-                        cloneLabel.style.transform = `translateX(-50%) translateY(${labelDelta}px)`;
-                    }
-
-                    const expandTimeout = 900;
                     let expandDone = false;
+                    const expandTimeout = 900;
                     const onExpandEnd = function handler(evt) {
                         if (evt.propertyName === "width") {
                             expandDone = true;
@@ -144,6 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                     };
                     clone.addEventListener("transitionend", onExpandEnd);
+
                     setTimeout(() => {
                         if (!expandDone) {
                             try { clone.removeEventListener("transitionend", onExpandEnd); } catch (e) {}
@@ -183,9 +199,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
 
                     function proceedToShrink() {
-                        const cloneLabel = clone.querySelector(".label");
-                        if (cloneLabel) {
-                            cloneLabel.style.transform = "translateX(-50%) translateY(0)";
+                        const cloneLabelLocal = clone.querySelector(".label");
+                        if (cloneLabelLocal) {
+                            cloneLabelLocal.style.transform = "translateX(-50%)";
+                            cloneLabelLocal.style.top = `${initialLabelOffset}px`;
                         }
 
                         const labelBackDelay = 120;
@@ -221,9 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             }, shrinkTimeout);
                         }, labelBackDelay);
                     }
-
                 });
-
             });
 
             panel.setAttribute("tabindex", "0");
