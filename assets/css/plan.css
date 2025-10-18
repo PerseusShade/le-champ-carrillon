@@ -213,10 +213,18 @@ html, body {
 }
 
 @media (max-width: 720px) {
-    #plan-root { padding: 20px 6%; }
-    .plan-frame { max-height: calc((var(--vh, 1vh) * 100) - var(--header-height) - 90px); }
-    .plan-image { max-height: calc((var(--vh, 1vh) * 100) - var(--header-height) - 120px); }
-    .map-tooltip { font-size: 14px; }
+    #plan-root {
+        padding: 20px 6%;
+    }
+    .plan-frame {
+        max-height: calc((var(--vh, 1vh) * 100) - var(--header-height) - 90px);
+    }
+    .plan-image {
+        max-height: calc((var(--vh, 1vh) * 100) - var(--header-height) - 120px);
+    }
+    .map-tooltip {
+        font-size: 14px;
+    }
     .plan-bottom-info {
         left: 6%;
         right: 6%;

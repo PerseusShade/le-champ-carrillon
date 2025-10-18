@@ -18,7 +18,7 @@ html, body {
 
 .hero {
     position: relative;
-    min-height: (var(--vh, 1vh) * 100);
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;

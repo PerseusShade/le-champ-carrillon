@@ -142,5 +142,7 @@
     .gallery-overlay .gallery-close {
         font-size: 2.4rem;
     }
-    .gallery-nav { font-size: 2.4rem; }
+    .gallery-nav {
+        font-size: 2.4rem;
+    }
 }

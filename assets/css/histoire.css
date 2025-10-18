@@ -144,13 +144,24 @@ body {
 }
 
 @media (max-width: 1000px) {
-    .chevron { height: 92px; }
-    .year-number { font-size: 22px; }
+    .chevron {
+        height: 92px;
+    }
+    .year-number {
+        font-size: 22px;
+    }
 }
 @media (max-width: 640px) {
-    .timeline { gap: 12px; }
-    .chevron { height: 78px; width: clamp(100px, 28vw, 180px); }
-    .year-number { font-size: 18px; }
+    .timeline {
+        gap: 12px;
+    }
+    .chevron {
+        height: 78px;
+        width: clamp(100px, 28vw, 180px);
+    }
+    .year-number {
+        font-size: 18px;
+    }
 }
 
 .year.faded {
@@ -313,7 +324,10 @@ body {
     cursor: pointer;
     transition: transform 180ms ease, opacity 160ms ease;
 }
-.overlay-cell img:hover { transform: scale(1.02); opacity: 0.98; }
+.overlay-cell img:hover {
+    transform: scale(1.02);
+    opacity: 0.98;
+}
 
 .overlay-text {
     text-align: justify;

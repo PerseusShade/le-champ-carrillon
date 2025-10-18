@@ -182,9 +182,17 @@ svg {
 }
 
 @media (max-width: 640px) {
-    .morph-text-box { max-width: 80vw; min-width: 120px; padding: 8px 10px; }
-    .morph-text-title { font-size: 16px; }
-    .morph-text-desc { font-size: 12px; }
+    .morph-text-box {
+        max-width: 80vw;
+        min-width: 120px;
+        padding: 8px 10px;
+    }
+    .morph-text-title {
+        font-size: 16px;
+    }
+    .morph-text-desc {
+        font-size: 12px;
+    }
 }
 
 .morph-overlay-html {

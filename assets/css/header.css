@@ -101,7 +101,10 @@ html, body {
     z-index: 19999;
     transition: opacity 0.6s ease;
 }
-#page-fade.active { opacity: 1; pointer-events: all; }
+#page-fade.active {
+    opacity: 1;
+    pointer-events: all;
+}
 
 #page-fade-logo {
     position: fixed;
@@ -113,7 +116,10 @@ html, body {
     z-index: 20001;
     transition: opacity 0.6s ease;
 }
-#page-fade-logo.active { opacity: 1; pointer-events: all; }
+#page-fade-logo.active {
+    opacity: 1;
+    pointer-events: all;
+}
 
 #header .main-nav a.active,
 #header .main-nav a[aria-current="page"] {
