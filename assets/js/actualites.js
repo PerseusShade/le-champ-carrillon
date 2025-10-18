@@ -59,6 +59,7 @@ function fixOddImages() {
                 img.style.gridColumn = '';
                 img.style.height = '';
                 img.style.objectFit = '';
+                img.classList.remove('span-2');
             });
             return;
         }
@@ -83,9 +84,15 @@ function fixOddImages() {
             const last = imgs[imgs.length - 1];
 
             last.style.gridColumn = 'span 2';
+            last.classList.add('span-2');
+
             last.style.objectFit = 'cover';
-            if (rowH) last.style.height = `${rowH}px`;
-            else last.style.height = '';
+
+            if (rowH) {
+                last.style.height = `${rowH}px`;
+            } else {
+                last.style.height = '';
+            }
         }
     });
 }
@@ -93,6 +100,9 @@ function fixOddImages() {
 document.addEventListener("DOMContentLoaded", () => {
     fixOddImages();
     window.addEventListener("resize", debounce(fixOddImages, 100));
+
+    window.addEventListener('orientationchange', debounce(fixOddImages, 150));
+    setTimeout(fixOddImages, 120);
 
     (function(){
         const title = document.querySelector('.actualites-title');

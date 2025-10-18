@@ -586,18 +586,7 @@
                     infoBoxEl.style.zIndex = 10005;
                     document.body.appendChild(infoBoxEl);
 
-                    infoBoxEl.setAttribute('tabindex', '0');
-                    infoBoxEl.style.webkitOverflowScrolling = 'touch';
-                    infoBoxEl.style.touchAction = 'auto';
-                    infoBoxEl.style.overscrollBehavior = 'contain';
-
-                    infoBoxEl.addEventListener('touchstart', () => {
-                        try { infoBoxEl.focus({ preventScroll: true }); } catch (e) { infoBoxEl.focus(); }
-                    }, { passive: true });
-
-                    infoBoxEl.addEventListener('touchmove', (ev) => { ev.stopPropagation(); }, { passive: false });
-                    infoBoxEl.addEventListener('pointerdown', (ev) => { ev.stopPropagation(); }, { passive: true });
-                    infoBoxEl.addEventListener('wheel', (ev) => { ev.stopPropagation(); }, { passive: true });
+                    infoBoxEl.classList.add('scroll-fix-target');
 
                     requestAnimationFrame(() => {
                         infoBoxEl.style.transition = `opacity ${INFO_FADE_MS}ms ease, transform ${INFO_FADE_MS}ms cubic-bezier(.22,.9,.31,1)`;
