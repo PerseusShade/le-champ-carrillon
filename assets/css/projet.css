@@ -8,7 +8,7 @@
 html, body {
     overflow: hidden;
     background-color: var(--main-bg);
-    padding-top: var(--header-height, 60px);
+    padding-top: var(--header-height);
 }
 
 #petal-canvas {
@@ -116,7 +116,7 @@ svg {
 
 .morph-close-btn {
     position: fixed;
-    top: calc(var(--header-height, 60px) + 8px);
+    top: calc(var(--header-height) + 8px);
     right: 12px;
     z-index: 10010;
     width: 40px;
@@ -224,6 +224,8 @@ svg {
     font-family: "Segoe UI", Roboto, Arial, sans-serif;
     line-height: 1.5;
     text-align: justify;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
 }
 
 .morph-info-inner {
