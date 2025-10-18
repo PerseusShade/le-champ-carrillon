@@ -22,7 +22,7 @@ html, body {
     gap: 8px;
     padding: 8px;
     margin-top: var(--header-height, 60px);
-    height: calc(100vh - var(--header-height, 60px));
+    height: calc((var(--vh, 1vh) * 100) - var(--header-height, 60px));
     position: relative;
 }
 
@@ -118,7 +118,7 @@ html, body {
     top: var(--header-height) !important;
     left: 0 !important;
     width: 100vw !important;
-    height: calc(100vh - var(--header-height)) !important;
+    height: calc((var(--vh, 1vh) * 100) - var(--header-height)) !important;
     border-radius: 0 !important;
 }
 
@@ -187,7 +187,7 @@ html, body {
 }
 
 .fullscreen-panel.fullscreen .info-wrap {
-    top: calc(var(--header-height) + 14vh);
+    top: calc(var(--header-height) + (var(--vh, 1vh) * 14));
     bottom: 0vh;
 }
 
@@ -218,7 +218,7 @@ html, body {
 
     .activites-container {
         flex-direction: column;
-        height: calc(100vh - var(--header-height, 60px));
+        height: calc((var(--vh, 1vh) * 100) - var(--header-height, 60px));
         gap: 8px;
         padding: 8px;
         overflow-y: auto;
@@ -226,7 +226,7 @@ html, body {
 
     .panel {
         flex: none;
-        height: calc((100vh - var(--header-height, 60px) - 40px) / 4);
+        height: calc(((var(--vh, 1vh) * 100) - var(--header-height, 60px) - 40px) / 4);
         transition: opacity 0.35s ease;
         border-radius: 10px;
     }
@@ -263,7 +263,7 @@ html, body {
     }
 
     .fullscreen-panel.fullscreen .info-wrap {
-        top: calc(var(--header-height) + 14vh);
+        top: calc(var(--header-height) + (var(--vh, 1vh) * 14));
         bottom: 0vh;
     }
 
