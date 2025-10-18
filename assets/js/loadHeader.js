@@ -761,13 +761,23 @@
     document.addEventListener('DOMContentLoaded', () => setTimeout(() => { checkHeaderMode(); }, 60));
 
     function fixViewportHeight() {
-        document.documentElement.style.setProperty(
-            '--vh',
-            `${window.innerHeight * 0.01}px`
-        );
+        try {
+            const vv = window.visualViewport;
+            const height = (vv && typeof vv.height === 'number') ? vv.height : window.innerHeight;
+            document.documentElement.style.setProperty('--vh', `${height * 0.01}px`);
+        } catch (e) {
+            document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+        }
+    }
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', fixViewportHeight);
+        window.visualViewport.addEventListener('scroll', fixViewportHeight);
     }
 
     window.addEventListener('resize', fixViewportHeight);
+    window.addEventListener('orientationchange', fixViewportHeight);
+
     fixViewportHeight();
 
     bootstrap();
