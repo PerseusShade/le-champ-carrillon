@@ -228,7 +228,8 @@
         const rawSrcPts = samplePathInScreenCoords(pathTarget, petalUseEl, SAMPLE_POINTS);
 
         const headerHstr = getComputedStyle(document.documentElement).getPropertyValue('--header-height');
-        const headerGuess = Math.max(0, parseInt(headerHstr, 10) || 60);
+        const parsedHeader = parseInt(headerHstr, 10);
+        const headerGuess = Number.isNaN(parsedHeader) ? 60 : Math.max(0, parsedHeader);
 
         const vw = window.innerWidth;
         const vhTotal = window.innerHeight;
@@ -430,12 +431,14 @@
                         } catch (e) {}
                     }
 
-                    const BOX_VERTICAL_RATIO = 0.25;
+                    const isPortrait = overlayH > overlayW;
+                    const BOX_VERTICAL_RATIO = isPortrait ? 0.14 : 0.25;
                     const bgH = bgRect ? parseFloat(bgRect.getAttribute('height') || '0') : 0;
                     const targetCenterX = Math.round(overlayW / 2);
-                    const topPadding = Math.max(24, Math.round(overlayH * 0.04));
+                    const topPadding = Math.max(8, Math.round(overlayH * (isPortrait ? 0.015 : 0.04)));
                     const computedYByRatio = Math.round(overlayH * BOX_VERTICAL_RATIO);
                     const targetCenterY = Math.max(topPadding + Math.round(bgH / 2), computedYByRatio);
+
 
                     const dxTotal = targetCenterX - currentCenterX;
                     const dyTotal = targetCenterY - currentCenterY;
@@ -555,8 +558,12 @@
                         anchorY = overlayTop + Math.round(overlayH * BOX_VERTICAL_RATIO);
                     }
                     const bgH = (wrapperGroup && wrapperGroup._anim && wrapperGroup._anim.bgRectBBox) ? wrapperGroup._anim.bgRectBBox.height : 0;
-                    const offsetY = Math.max(12, Math.round((bgH / 2) + 100));
+                    const isPortraitLocal = overlayH > overlayW;
+                    const offsetY = Math.max(8, Math.round((bgH / 2) + (isPortraitLocal ? 100 : 160)));
                     let topPos = Math.round(anchorY + offsetY);
+
+                    const minTopAllowed = overlayTop + 8;
+                    if (topPos < minTopAllowed) topPos = minTopAllowed;
 
                     const infoBoxHeightEstimate = Math.min(window.innerHeight * 0.45, 420);
                     const overlayViewportBottom = overlayTop + overlayH;
@@ -568,7 +575,12 @@
                     infoBoxEl.style.top = `${Math.round(topPos)}px`;
                     infoBoxEl.style.transform = 'translate(-50%, 8px)';
 
-                    infoBoxEl.style.transform = 'translate(-50%, 8px)';
+                    const bottomMargin = 20;
+                    const maxHeightPx = Math.max(80, overlayViewportBottom - topPos - bottomMargin);
+                    infoBoxEl.style.maxHeight = `${maxHeightPx}px`;
+                    infoBoxEl.style.overflowY = 'auto';
+                    infoBoxEl.style.boxSizing = 'border-box';
+
                     infoBoxEl.style.opacity = '0';
                     infoBoxEl.style.pointerEvents = 'auto';
                     infoBoxEl.style.zIndex = 10005;
