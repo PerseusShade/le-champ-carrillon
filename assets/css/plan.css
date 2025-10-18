@@ -42,7 +42,7 @@ html, body {
     position: relative;
     display: inline-block;
     border-radius: 14px;
-    max-height: calc(100vh - var(--header-height) - 120px);
+    max-height: calc((var(--vh, 1vh) * 100) - var(--header-height) - 120px);
     overflow: hidden;
 }
 
@@ -50,7 +50,7 @@ html, body {
     display: block;
     width: 100%;
     height: auto;
-    max-height: calc(100vh - var(--header-height) - 160px);
+    max-height: calc((var(--vh, 1vh) * 100) - var(--header-height) - 160px);
     border: 6px solid var(--main-green);
     box-sizing: border-box;
     border-radius: 14px;
@@ -188,7 +188,7 @@ html, body {
     left: 10%;
     right: 10%;
     bottom: auto;
-    max-height: 40vh;
+    max-height: (var(--vh, 1vh) * 40);
     overflow: auto;
     background: var(--panel-bg);
     border-radius: var(--panel-radius);
@@ -214,10 +214,16 @@ html, body {
 
 @media (max-width: 720px) {
     #plan-root { padding: 20px 6%; }
-    .plan-frame { max-height: calc(100vh - var(--header-height) - 90px); }
-    .plan-image { max-height: calc(100vh - var(--header-height) - 120px); }
+    .plan-frame { max-height: calc((var(--vh, 1vh) * 100) - var(--header-height) - 90px); }
+    .plan-image { max-height: calc((var(--vh, 1vh) * 100) - var(--header-height) - 120px); }
     .map-tooltip { font-size: 14px; }
-    .plan-bottom-info { left: 6%; right: 6%; padding: 10px; max-height: 50vh; font-size: 1rem; }
+    .plan-bottom-info {
+        left: 6%;
+        right: 6%;
+        padding: 10px;
+        max-height: (var(--vh, 1vh) * 50);
+        font-size: 1rem;
+    }
 }
 
 .hidden { display: none !important; }

@@ -18,7 +18,7 @@ html, body {
 
 .hero {
     position: relative;
-    min-height: 100vh;
+    min-height: (var(--vh, 1vh) * 100);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -102,7 +102,7 @@ body.animate-ready .white-overlay {
     flex-direction: column;
 
     overflow: visible;
-    max-height: calc(100vh - var(--box-gap) - 60px);
+    max-height: calc((var(--vh, 1vh) * 100) - var(--box-gap) - 60px);
 }
 
 .text-box.show {
@@ -160,7 +160,7 @@ body.animate-ready .white-overlay {
     flex: 1 1 auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    max-height: calc(100vh - var(--box-gap) - var(--vertical-padding) - 60px);
+    max-height: calc((var(--vh, 1vh) * 100) - var(--box-gap) - var(--vertical-padding) - 60px);
 }
 
 .text-content h1 {
@@ -211,11 +211,11 @@ body.animate-ready .white-overlay {
 @media (max-height: 540px) {
     .text-box {
         --box-gap: 28px;
-        max-height: calc(100vh - var(--box-gap));
+        max-height: calc((var(--vh, 1vh) * 100) - var(--box-gap));
     }
 
     .text-content {
-        max-height: calc(100vh - var(--box-gap) - (var(--vertical-padding) * 0.9));
+        max-height: calc((var(--vh, 1vh) * 100) - var(--box-gap) - (var(--vertical-padding) * 0.9));
     }
 }
 

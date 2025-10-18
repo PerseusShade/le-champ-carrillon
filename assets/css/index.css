@@ -9,7 +9,7 @@ html, body {
 .splash {
     position: relative;
     width: 100vw;
-    height: 100vh;
+    height: (var(--vh, 1vh) * 100);
     overflow: hidden;
 }
 

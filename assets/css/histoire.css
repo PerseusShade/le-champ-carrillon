@@ -18,12 +18,12 @@ body {
     font-family: "Segoe UI", Roboto, Arial, sans-serif;
     color: var(--main-brown);
     background: var(--main-bg);
-    min-height: 100vh;
+    min-height: (var(--vh, 1vh) * 100);
 }
 
 .timeline-hero {
     margin-top: var(--header-height);
-    height: calc(100vh - var(--header-height));
+    height: calc((var(--vh, 1vh) * 100) - var(--header-height));
     display: flex;
     align-items: center;
     justify-content: center;

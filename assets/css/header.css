@@ -279,7 +279,7 @@ html, body {
     display: block;
     margin: 0;
     height: calc(var(--overlay-logo-height, 72px) * var(--compact-scale));
-    max-height: calc(20vh * var(--compact-scale));
+    max-height: calc((var(--vh, 1vh) * 20) * var(--compact-scale));
     width: auto;
 }
 .position-compact #menu-overlay .logo-placeholder .logo-header::after {
