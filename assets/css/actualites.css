@@ -5,7 +5,6 @@
     --main-bg: #f9f9f6;
 }
 
-
 body {
     background-color: var(--main-bg);
 }
@@ -129,7 +128,8 @@ body {
 }
 
 .see-more-btn {
-    padding: 5px 11px;
+    padding: 12px 24px;
+    font-size: 1.15rem;
     background-color: var(--main-green);
     color: #FFFFFF;
     border-radius: 5px;
@@ -201,8 +201,7 @@ body {
     }
 
     .see-more-btn {
-        padding: 6px 10px;
-        font-size: 0.95rem;
+        padding: 10px 18px;
+        font-size: 1rem;
     }
-
 }
