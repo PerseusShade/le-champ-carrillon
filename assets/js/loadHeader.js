@@ -760,14 +760,15 @@
     window.addEventListener('load', () => setTimeout(() => { updateHeaderHeight(); checkHeaderMode(); }, 60));
     document.addEventListener('DOMContentLoaded', () => setTimeout(() => { checkHeaderMode(); }, 60));
 
-    (function() {
-        function setVhVar() {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-        setVhVar();
-        window.addEventListener('resize', setVhVar);
-    })();
+    function fixViewportHeight() {
+        document.documentElement.style.setProperty(
+            '--vh',
+            `${window.innerHeight * 0.01}px`
+        );
+    }
+
+    window.addEventListener('resize', fixViewportHeight);
+    fixViewportHeight();
 
     bootstrap();
 
