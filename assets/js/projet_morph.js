@@ -181,6 +181,22 @@
         return `matrix(${a} ${b} ${c} ${d} ${e2} ${f2})`;
     }
 
+    function matrixForTranslateRotateScale(dx, dy, cx, cy, angleDeg, scale) {
+        const rad = angleDeg * Math.PI / 180;
+        const cos = Math.cos(rad) * scale;
+        const sin = Math.sin(rad) * scale;
+
+        const a = cos;
+        const b = sin;
+        const c = -sin;
+        const d = cos;
+
+        const e = cx - (a * cx + c * cy) + dx;
+        const f = cy - (b * cx + d * cy) + dy;
+        return `matrix(${a} ${b} ${c} ${d} ${e} ${f})`;
+    }
+
+
     function createInfoBoxElement(textHtml) {
         const el = document.createElement('div');
         el.className = 'morph-info-box';
@@ -403,9 +419,16 @@
                     bgRect.setAttribute('stroke-width', '3');
                     bgRect.setAttribute('pointer-events', 'none');
 
-                    const initialScale = 0.15;
+                    const isMobileLocal = (overlayW <= 640) || (window.innerWidth <= 640);
+
+                    const initialScale = isMobileLocal ? 1.0 : 0.15;
+                    const targetScale  = isMobileLocal ? 1.15 : 1.0;
+
                     bgRect.setAttribute('transform', `translate(${bgCx} ${bgCy}) scale(${initialScale}) translate(${-bgCx} ${-bgCy})`);
                     bgRect.style.opacity = '0';
+
+                    bgRect.dataset.initialScale = String(initialScale);
+                    bgRect.dataset.targetScale = String(targetScale);
 
                     svgTextGroup.insertBefore(bgRect, clone);
                 } catch (err) {
@@ -459,11 +482,17 @@
                     overlay.appendChild(wrapperGroup);
                     wrapperGroup.appendChild(svgTextGroup);
 
-                    wrapperGroup._anim = {
-                        dxTotal, dyTotal, neededRotation,
-                        currentCenterX, currentCenterY, targetCenterX, targetCenterY,
-                        bgRectBBox: bgRect ? bgRect.getBBox() : null
-                    };
+                    const isMobileLocal = (overlayW <= 640) || (window.innerWidth <= 640);
+                        const initialScaleText = isMobileLocal ? 1.0 : 0.15;
+                        const targetScaleText  = isMobileLocal ? 1.5 : 1.0;
+
+                        wrapperGroup._anim = {
+                            dxTotal, dyTotal, neededRotation,
+                            currentCenterX, currentCenterY, targetCenterX, targetCenterY,
+                            bgRectBBox: bgRect ? bgRect.getBBox() : null,
+                            initialScale: initialScaleText,
+                            targetScale: targetScaleText
+                        };
                 } catch (err) {
                     console.warn('morph: wrapper setup failed', err);
                     if (wrapperGroup && wrapperGroup.parentNode) wrapperGroup.parentNode.removeChild(wrapperGroup);
@@ -498,8 +527,11 @@
                 const bgElapsed = Math.min(BG_ANIM_DURATION_MS, elapsed);
                 const bgT = Math.min(1, bgElapsed / BG_ANIM_DURATION_MS);
                 const bgEt = EASE(bgT);
-                const s0 = 0.15, s1 = 1.0;
+
+                const s0 = parseFloat(bgRect.dataset.initialScale || '0.15');
+                const s1 = parseFloat(bgRect.dataset.targetScale  || '1.0');
                 const sc = s0 + (s1 - s0) * bgEt;
+
                 bgRect.setAttribute('transform', `translate(${bgCx} ${bgCy}) scale(${sc}) translate(${-bgCx} ${-bgCy})`);
                 bgRect.style.opacity = String(Math.min(1, bgEt * 1.05));
             }
@@ -515,7 +547,10 @@
                 const dyNow = am.dyTotal * moveEt;
                 const rotNow = am.neededRotation * moveEt;
 
-                const mStr = matrixForTranslateRotate(dxNow, dyNow, am.currentCenterX, am.currentCenterY, rotNow);
+                const sNow = (typeof am.initialScale === 'number' ? am.initialScale : 1) +
+                            ((typeof am.targetScale === 'number' ? am.targetScale : 1) - (typeof am.initialScale === 'number' ? am.initialScale : 1)) * moveEt;
+
+                const mStr = matrixForTranslateRotateScale(dxNow, dyNow, am.currentCenterX, am.currentCenterY, rotNow, sNow);
                 wrapperGroup.setAttribute('transform', mStr);
             }
 
@@ -528,7 +563,7 @@
         closeBtn.setAttribute('aria-label', 'Fermer');
         closeBtn.innerHTML = '&#10005;';
         closeBtn.style.top = `${Math.max(8, headerGuess + 8)}px`;
-        closeBtn.style.right = '12px';
+        closeBtn.style.right = '16px';
         closeBtn.style.position = 'fixed';
         closeBtn.style.zIndex = 10010;
         document.body.appendChild(closeBtn);
@@ -571,9 +606,19 @@
                         topPos = Math.max(overlayTop + Math.round(overlayH * 0.35), overlayViewportBottom - infoBoxHeightEstimate - 20);
                     }
 
-                    infoBoxEl.style.left = `${Math.round(anchorX)}px`;
-                    infoBoxEl.style.top = `${Math.round(topPos)}px`;
-                    infoBoxEl.style.transform = 'translate(-50%, 8px)';
+                    const isMobileInfo = (overlayW <= 640) || (window.innerWidth <= 640);
+                    if (isMobileInfo) {
+                        const sidePad = 16;
+                        infoBoxEl.style.left = `${sidePad}px`;
+                        infoBoxEl.style.right = `${sidePad}px`;
+                        infoBoxEl.style.width = `calc(100% - ${sidePad * 2}px)`;
+                        infoBoxEl.style.top = `${Math.round(topPos)}px`;
+                        infoBoxEl.style.transform = 'translate(0, 8px)';
+                    } else {
+                        infoBoxEl.style.left = `${Math.round(anchorX)}px`;
+                        infoBoxEl.style.top = `${Math.round(topPos)}px`;
+                        infoBoxEl.style.transform = 'translate(-50%, 8px)';
+                    }
 
                     const bottomMargin = 20;
                     const maxHeightPx = Math.max(80, overlayViewportBottom - topPos - bottomMargin);
@@ -610,7 +655,11 @@
                 const dxNow = am.dxTotal * rev;
                 const dyNow = am.dyTotal * rev;
                 const rotNow = am.neededRotation * rev;
-                const m = matrixForTranslateRotate(dxNow, dyNow, am.currentCenterX, am.currentCenterY, rotNow);
+
+                const sNow = (typeof am.initialScale === 'number' ? am.initialScale : 1) +
+                            ((typeof am.targetScale === 'number' ? am.targetScale : 1) - (typeof am.initialScale === 'number' ? am.initialScale : 1)) * rev;
+
+                const m = matrixForTranslateRotateScale(dxNow, dyNow, am.currentCenterX, am.currentCenterY, rotNow, sNow);
                 wrapperGroup.setAttribute('transform', m);
             });
         }
@@ -626,13 +675,16 @@
 
         function animateBgShrink() {
             if (!bgRect) return Promise.resolve();
+            const s0 = parseFloat(bgRect.dataset.initialScale || '0.15');
+            const s1 = parseFloat(bgRect.dataset.targetScale  || '1.0');
             return animate(BG_ANIM_DURATION_MS, (tt) => {
                 const et = EASE(tt);
-                const s = 1 + (0.15 - 1) * et;
+                const s = s1 + (s0 - s1) * et;
                 bgRect.setAttribute('transform', `translate(${bgCx} ${bgCy}) scale(${s}) translate(${-bgCx} ${-bgCy})`);
                 bgRect.style.opacity = String(Math.max(0, 1 - et * 1.05));
             });
         }
+
 
         let closing = false;
         function close() {
