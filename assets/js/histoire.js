@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cell.classList.add('img-bleed');
         cell.style.padding = '0';
         cell.style.overflow = 'hidden';
-        const finalSrc = `../assets/img/histoire/${src}`;
+        const finalSrc = isAbsolutePath(src) ? src : `../assets/img/histoire/${String(src).replace(/^\/+/, '')}`;
         const img = document.createElement('img');
         img.alt = alt || '';
         img.loading = 'lazy';
@@ -126,15 +126,20 @@ document.addEventListener('DOMContentLoaded', () => {
         cell.appendChild(img);
     }
 
-    function populateTextCell(cell, textHtml, fallbackHtml) {
+    function populateTextCell(cell, textHtml, fallbackHtml, mobileTextBoxMaxHeightPx) {
         cell.textContent = '';
         const wrapper = document.createElement('div');
         wrapper.className = 'overlay-text';
         wrapper.innerHTML = (textHtml !== undefined && textHtml !== null) ? textHtml : (fallbackHtml || '');
-        wrapper.style.maxHeight = '100%';
-        wrapper.style.overflow = 'auto';
         wrapper.style.lineHeight = '1.4';
         wrapper.style.padding = '8px';
+        if (mobileTextBoxMaxHeightPx) {
+            wrapper.style.maxHeight = `${mobileTextBoxMaxHeightPx}px`;
+            wrapper.style.overflow = 'auto';
+        } else {
+            wrapper.style.maxHeight = '100%';
+            wrapper.style.overflow = 'auto';
+        }
         cell.appendChild(wrapper);
     }
 
@@ -156,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function activate() {
             if (lock) return;
+            const isMobile = window.matchMedia && window.matchMedia('(max-width: 640px)').matches;
             lock = true;
             const animationTimers = [];
             function clearAnimationTimers() { animationTimers.forEach(id => clearTimeout(id)); animationTimers.length = 0; }
@@ -204,8 +210,12 @@ document.addEventListener('DOMContentLoaded', () => {
             clone.style.opacity = '1';
             document.body.appendChild(clone);
 
-            content.style.visibility = 'hidden';
-            content.style.pointerEvents = 'none';
+            if (isMobile) {
+                content.style.display = 'none';
+            } else {
+                content.style.visibility = 'hidden';
+                content.style.pointerEvents = 'none';
+            }
 
             const prev = document.querySelector('.timeline-overlay');
             if (prev && prev.parentElement) prev.parentElement.removeChild(prev);
@@ -257,8 +267,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const desiredHeight = Math.max(Math.round(natural.h), 28);
 
             const wrapperRect = wrapper.getBoundingClientRect();
-            const finalLeft = Math.max(8, wrapperRect.left + pad + EXTRA_LEFT_OFFSET);
             const finalTop = headerRect.bottom + 40;
+
+            let finalLeft = Math.max(8, wrapperRect.left + pad + EXTRA_LEFT_OFFSET);
+            if (isMobile) {
+                finalLeft = Math.round((window.innerWidth - chevRect.width) / 2);
+            }
+
             const cloneTop = finalTop + Math.round((chevRect.height / 2) - (desiredHeight / 2));
 
             let areaLeftViewport, areaWidth;
@@ -268,6 +283,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 areaLeftViewport = Math.max(8, wrapperRect.left + pad);
                 areaWidth = Math.max(minBoxWidth, Math.round(Math.max(0, window.innerWidth - 2 * areaLeftViewport)));
+            }
+
+            if (isMobile) {
+                areaLeftViewport = 8;
+                areaWidth = Math.max(minBoxWidth, window.innerWidth - 16);
             }
 
             const maxCloneWidth = Math.max(minBoxWidth, areaWidth - 24);
@@ -324,10 +344,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 return cell;
             }
 
-            const cellA = makeCell('1', '1'); gridContainer.appendChild(cellA);
-            const cellB = makeCell('2', '1'); gridContainer.appendChild(cellB);
-            const cellC = makeCell('1 / span 2', '2'); gridContainer.appendChild(cellC);
-            const cellD = makeCell('3', '1 / span 2'); gridContainer.appendChild(cellD);
+            const cellA = makeCell('1', '1');
+            gridContainer.appendChild(cellA);
+            const cellB = makeCell('2', '1');
+            gridContainer.appendChild(cellB);
+            const cellC = makeCell('1 / span 2', '2');
+            gridContainer.appendChild(cellC);
+            const cellD = makeCell('3', '1 / span 2');
+            gridContainer.appendChild(cellD);
+
+            if (isMobile) {
+                chevron.style.left = `${finalLeft}px`;
+                chevron.style.top = `${finalTop}px`;
+
+                gridContainer.style.left = `${areaLeftViewport}px`;
+                gridContainer.style.width = `${areaWidth}px`;
+                gridContainer.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                gridContainer.style.gridTemplateRows = 'auto 1fr';
+                gridContainer.style.gap = '8px';
+                gridContainer.style.padding = '8px';
+                gridContainer.style.height = `${areaHeight}px`;
+                gridContainer.style.overflow = 'hidden';
+
+                cellB.style.gridColumn = '1 / span 3';
+                cellB.style.gridRow = '1';
+
+                cellA.style.gridColumn = '1';
+                cellA.style.gridRow = '2';
+                cellC.style.gridColumn = '2';
+                cellC.style.gridRow = '2';
+                cellD.style.gridColumn = '3';
+                cellD.style.gridRow = '2';
+
+                [cellA, cellC, cellD].forEach(c => {
+                    c.style.alignSelf = 'stretch';
+                    c.style.height = '100%';
+                    c.style.display = 'flex';
+                    c.style.flexDirection = 'column';
+                });
+
+                cellB.style.padding = '8px';
+                cellB.style.overflow = 'hidden';
+
+                const viewportAvail = Math.max(120, window.innerHeight - (finalTop + chevRect.height + GAP_BEFORE_BOX) - BOTTOM_MARGIN);
+                const textBoxMax = Math.round(viewportAvail * 0.45);
+                cellB._mobileTextBoxMax = textBoxMax;
+
+                desiredWidth = Math.max(minBoxWidth, Math.round(areaWidth - 24));
+                const newCloneLeft = Math.max(8, Math.round(areaLeftViewport + (areaWidth - desiredWidth) / 2));
+                clone.style.left = `${newCloneLeft}px`;
+                clone.style.top = `${cloneTop}px`;
+                clone.style.width = `${desiredWidth}px`;
+            }
 
             function createCloseButton() {
                 let btn = document.querySelector('.timeline-close');
@@ -359,19 +427,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 const entry = (dataKey && dateJson[dataKey]) ? dateJson[dataKey] : null;
                 if (!entry || !Array.isArray(entry.images)) {
                     if (entry && (entry.text || entry.description)) {
-                        populateTextCell(cellB, entry.text || entry.description, originalContentHtml);
+                        if (isMobile && cellB._mobileTextBoxMax) {
+                            populateTextCell(cellB, entry.text || entry.description, originalContentHtml, cellB._mobileTextBoxMax);
+                        } else {
+                            populateTextCell(cellB, entry.text || entry.description, originalContentHtml);
+                        }
                     } else {
-                        populateTextCell(cellB, originalContentHtml, originalContentHtml);
+                        if (isMobile && cellB._mobileTextBoxMax) {
+                            populateTextCell(cellB, originalContentHtml, originalContentHtml, cellB._mobileTextBoxMax);
+                        } else {
+                            populateTextCell(cellB, originalContentHtml, originalContentHtml);
+                        }
                     }
                     return;
                 }
                 const images = entry.images.slice(0, 3);
+
+                if (isMobile && cellB._mobileTextBoxMax) {
+                    populateTextCell(cellB, entry.text || originalContentHtml, originalContentHtml, cellB._mobileTextBoxMax);
+                } else {
+                    populateTextCell(cellB, entry.text || originalContentHtml, originalContentHtml);
+                }
+
                 if (images[0]) populateImageCell(cellA, images[0], `${dataKey||''} - 1`, images, 0);
-                populateTextCell(cellB, entry.text || originalContentHtml, originalContentHtml);
                 if (images[1]) populateImageCell(cellC, images[1], `${dataKey||''} - 2`, images, 1);
                 if (images[2]) populateImageCell(cellD, images[2], `${dataKey||''} - 3`, images, 2);
             }).catch(() => {
-                populateTextCell(cellB, originalContentHtml, originalContentHtml);
+                if (isMobile && cellB._mobileTextBoxMax) {
+                    populateTextCell(cellB, originalContentHtml, originalContentHtml, cellB._mobileTextBoxMax);
+                } else {
+                    populateTextCell(cellB, originalContentHtml, originalContentHtml);
+                }
             });
 
             requestAnimationFrame(() => {
@@ -394,10 +480,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 chevron.classList.add('fade-hover');
                 const cellDelay = 180;
                 const reveal = (cell, delay) => animationTimers.push(setTimeout(() => { cell.style.opacity = '1'; cell.style.transform = 'translateY(0)'; }, delay));
-                reveal(cellA, 0);
-                reveal(cellB, cellDelay);
-                reveal(cellC, cellDelay * 2);
-                reveal(cellD, cellDelay * 3);
+                if (isMobile) {
+                    reveal(cellB, 0);
+                    reveal(cellA, cellDelay);
+                    reveal(cellC, cellDelay * 2);
+                    reveal(cellD, cellDelay * 3);
+                } else {
+                    reveal(cellA, 0);
+                    reveal(cellB, cellDelay);
+                    reveal(cellC, cellDelay * 2);
+                    reveal(cellD, cellDelay * 3);
+                }
                 animationTimers.push(setTimeout(() => {}, cellDelay * 3 + 300));
             }, PHASE_A_DELAY);
             animationTimers.push(phaseA_T);
@@ -441,8 +534,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     chevron.style.transform = '';
 
                     if (clone && clone.parentElement) clone.parentElement.removeChild(clone);
-                    content.style.visibility = '';
-                    content.style.pointerEvents = '';
+                    if (isMobile) {
+                        content.style.display = '';
+                    } else {
+                        content.style.visibility = '';
+                        content.style.pointerEvents = '';
+                    }
 
                     const ph = year.querySelector('.chevron-placeholder');
                     if (ph && ph.parentElement) ph.parentElement.removeChild(ph);
@@ -488,7 +585,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 area.style.paddingRight = `${areaPadRightNew}px`;
 
                 const newWrapperRect = wrapper.getBoundingClientRect();
-                const newFinalLeft = Math.max(8, newWrapperRect.left + newPad + EXTRA_LEFT_OFFSET);
+                let newFinalLeft = Math.max(8, newWrapperRect.left + newPad + EXTRA_LEFT_OFFSET);
+                if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) {
+                    newFinalLeft = Math.round((window.innerWidth - chevRect.width) / 2);
+                }
                 chevron.style.left = `${newFinalLeft}px`;
 
                 let newAreaLeft, newAreaWidth;
@@ -499,6 +599,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     newAreaLeft = Math.max(8, newWrapperRect.left + newPad);
                     newAreaWidth = Math.max(minBoxWidth, Math.round(Math.max(0, window.innerWidth - 2 * newAreaLeft)));
+                }
+
+                if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) {
+                    newAreaLeft = 8;
+                    newAreaWidth = Math.max(minBoxWidth, window.innerWidth - 16);
                 }
 
                 const newAreaTop = finalTop + chevRect.height + GAP_BEFORE_BOX;
