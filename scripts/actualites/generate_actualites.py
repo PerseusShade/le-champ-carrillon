@@ -84,13 +84,18 @@ with OUTPUT_FILE.open("w", encoding="utf-8") as f:
         f.write("""
             </div>
         </section>""")
+    f.write('''
+        <div class="see-more-wrapper">
+            <a class="see-more-btn" href="https://chat.whatsapp.com/JiTMwsPDkHAHEIB7ULJ0HK" target="_blank" rel="noopener noreferrer">Voir plus</a>
+        </div>
+    ''')
     f.write("""
         </main>
     </div>
-    <script src="../assets/js/actualite.js" defer></script>
+    <script src="../assets/js/actualites.js" defer></script>
+    <script src="../assets/js/overlay.js" defer></script>
 </body>
 </html>
 """)
 
 print(f"Généré -> {OUTPUT_FILE}")
-
