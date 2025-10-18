@@ -150,17 +150,106 @@ body {
     .year-number {
         font-size: 22px;
     }
+    .overlay-wrapper {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    .overlay-grid-container {
+        gap: 8px !important;
+    }
+
+    .overlay-cell {
+        padding: 6px !important;
+    }
+
+    .overlay-cell.img-bleed {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 0 !important;
+        box-sizing: border-box;
+    }
+    .overlay-cell.img-bleed img {
+        width: 100% !important;
+        height: 100% !important;
+        display: block !important;
+        object-fit: cover !important;
+        border-radius: inherit !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        border-radius: 6px;
+    }
 }
+
 @media (max-width: 640px) {
     .timeline {
-        gap: 12px;
+        flex-direction: column;
+        gap: 8px;
+        padding: 6px 6px;
+        align-items: stretch;
+    }
+    .year {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 6px;
+        box-sizing: border-box;
     }
     .chevron {
-        height: 78px;
         width: clamp(100px, 28vw, 180px);
+        height: 78px;
+        flex: 0 0 auto;
+        margin: 0;
     }
-    .year-number {
-        font-size: 18px;
+    .year-content {
+        display: none !important;
+    }
+
+    .overlay-wrapper {
+        padding: 20px 8px;
+    }
+
+    .overlay-grid-container {
+        gap: 8px !important;
+        padding: 8px !important;
+        box-sizing: border-box;
+    }
+
+    .overlay-cell {
+        padding: 8px !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
+        box-sizing: border-box;
+    }
+
+    .overlay-cell.img-bleed {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 0 !important;
+        box-sizing: border-box;
+    }
+    .overlay-cell.img-bleed img {
+        width: 100% !important;
+        height: 100% !important;
+        display: block !important;
+        object-fit: cover !important;
+        border-radius: inherit !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        border-radius: 6px;
+    }
+
+    .timeline-close {
+        top: 8px;
+        right: 8px;
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
     }
 }
 
