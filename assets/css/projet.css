@@ -182,6 +182,14 @@ svg {
 }
 
 @media (max-width: 640px) {
+    .morph-info-box {
+        left: 16px !important;
+        right: 16px !important;
+        width: calc(100% - 32px) !important;
+        max-width: none !important;
+        transform: translate(0, 8px) !important;
+        box-sizing: border-box;
+    }
     .morph-text-box {
         max-width: 80vw;
         min-width: 120px;
