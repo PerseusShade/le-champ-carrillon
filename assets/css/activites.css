@@ -5,8 +5,17 @@
     --main-bg: #f9f9f6;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; font-family: "Segoe UI", sans-serif; background-color: var(--main-bg); overflow: hidden; }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+html, body {
+    height: calc(var(--vh, 1vh) * 100);
+    font-family: "Segoe UI", sans-serif;
+    background-color: var(--main-bg);
+    overflow: hidden;
+}
 
 .activites-container {
     display: flex;
