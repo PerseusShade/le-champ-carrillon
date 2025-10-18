@@ -203,7 +203,7 @@ with sync_playwright() as p:
                     save_image(src, out_dir/"image"/f"{j+1:02d}", page)
                     saved += 1
 
-        (out_dir/"json.txt").write_text(json.dumps({"image_count": saved}, indent=2), "utf-8")
+        (out_dir/"json.txt").write_text(json.dumps({"image_count": saved}, indent=4), "utf-8")
         print(f"{out_dir.name} → {saved} images")
 
         processed += 1
@@ -211,3 +211,4 @@ with sync_playwright() as p:
 
     print("Terminé")
     ctx.close()
+
