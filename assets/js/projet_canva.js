@@ -1,6 +1,23 @@
 (function () {
     'use strict';
 
+    function getViewport() {
+        try {
+            if (window.visualViewport && typeof window.visualViewport.height === 'number') {
+                return {
+                    width: Math.max(1, window.visualViewport.width),
+                    height: Math.max(1, window.visualViewport.height),
+                    offsetTop: window.visualViewport.offsetTop || 0
+                };
+            }
+        } catch (e) {}
+        return {
+            width: Math.max(1, window.innerWidth || document.documentElement.clientWidth),
+            height: Math.max(1, window.innerHeight || document.documentElement.clientHeight),
+            offsetTop: 0
+        };
+    }
+
     const IMAGES = [
         "../assets/img/projet/img0.jpg",
         "../assets/img/projet/img1.png",
@@ -37,9 +54,10 @@
             canvas.id = 'petal-canvas';
             Object.assign(canvas.style, {
                 position: 'fixed',
-                inset: '0',
+                left: '0',
+                top: '0',
                 width: '100vw',
-                height: '100vh',
+                height: 'calc(var(--vh, 1vh) * 100)',
                 pointerEvents: 'none',
                 zIndex: '0'
             });
@@ -50,8 +68,9 @@
 
     function setCanvasSize() {
         dpr = window.devicePixelRatio || 1;
-        const w = Math.max(1, window.innerWidth);
-        const h = Math.max(1, window.innerHeight);
+        const vp = getViewport();
+        const w = Math.max(1, vp.width);
+        const h = Math.max(1, vp.height);
         canvas.width = Math.round(w * dpr);
         canvas.height = Math.round(h * dpr);
         canvas.style.width = w + 'px';
@@ -86,7 +105,8 @@
     }
 
     function getImageRectForIndex(i, img) {
-        const vw = window.innerWidth, vh = window.innerHeight;
+        const vp = getViewport();
+        const vw = vp.width, vh = vp.height;
         if (imageRectCache.w === vw && imageRectCache.h === vh && imageRectCache.rects[i]) {
             return imageRectCache.rects[i];
         }
@@ -147,7 +167,6 @@
 
             ctx.restore();
         });
-
     }
 
     function buildPath2DForIndex(idx) {
@@ -318,6 +337,11 @@
         window.addEventListener('flower:update', () => scheduleRender());
         const zones = svgEl.querySelectorAll('use.petal-zone');
         zones.forEach(z => z.addEventListener('pointerdown', () => scheduleRender()));
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => { setCanvasSize(); scheduleRender(); }, { passive: true });
+            window.visualViewport.addEventListener('scroll', () => scheduleRender(), { passive: true });
+        }
 
         watchSVGChanges();
         scheduleRender();
