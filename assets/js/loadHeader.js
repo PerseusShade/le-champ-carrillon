@@ -770,12 +770,6 @@
         }
     }
 
-    // --- inserer après fixViewportHeight() definition ---
-    /**
-     * Helper global pour convertir un pourcentage de vh en px,
-     * en utilisant la variable CSS --vh mise à jour par fixViewportHeight().
-     * Usage : window.vhToPx(100) => hauteur en px équivalente à 100*var(--vh)
-     */
     window.vhToPx = function(percent) {
         try {
             const raw = getComputedStyle(document.documentElement).getPropertyValue('--vh') || '';
@@ -787,7 +781,6 @@
         }
     };
 
-    // Expose aussi un petit raccourci pour 1vh
     window.oneVhPx = function() {
         try {
             const raw = getComputedStyle(document.documentElement).getPropertyValue('--vh') || '';
