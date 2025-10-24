@@ -12,10 +12,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const bottomInfo = document.createElement('div');
-    bottomInfo.className = 'plan-bottom-info';
+    bottomInfo.className = 'plan-bottom-info scroll-fix-target';
     bottomInfo.setAttribute('aria-hidden', 'true');
     bottomInfo.setAttribute('aria-live', 'polite');
+    bottomInfo.setAttribute('tabindex', '0');
+    try {
+        const headerH = getHeaderHeightPx();
+        const safeMax = Math.max(120, Math.round(viewportHeight() - headerH - 120));
+        bottomInfo.style.maxHeight = `${safeMax}px`;
+        bottomInfo.style.overflowY = 'auto';
+        bottomInfo.style.boxSizing = 'border-box';
+    } catch (e) {}
     document.body.appendChild(bottomInfo);
+
 
     const tooltip = document.createElement('div');
     tooltip.className = 'map-tooltip';
