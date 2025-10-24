@@ -129,10 +129,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateTextCell(cell, textHtml, fallbackHtml, mobileTextBoxMaxHeightPx) {
         cell.textContent = '';
         const wrapper = document.createElement('div');
-        wrapper.className = 'overlay-text';
+        wrapper.className = 'overlay-text scroll-fix-target';
         wrapper.innerHTML = (textHtml !== undefined && textHtml !== null) ? textHtml : (fallbackHtml || '');
         wrapper.style.lineHeight = '1.4';
         wrapper.style.padding = '8px';
+        wrapper.setAttribute('tabindex', '0');
+        wrapper.style.boxSizing = 'border-box';
+
         if (mobileTextBoxMaxHeightPx) {
             wrapper.style.maxHeight = `${mobileTextBoxMaxHeightPx}px`;
             wrapper.style.overflow = 'auto';
@@ -142,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         cell.appendChild(wrapper);
     }
+
 
     let lock = false;
     let activeState = null;
@@ -333,6 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cell.style.alignItems = 'center';
                 cell.style.justifyContent = 'center';
                 cell.style.padding = '12px';
+                cell.style.paddingInlineEnd = '12px';
                 cell.style.color = 'var(--main-brown, #7B2D2D)';
                 cell.style.fontSize = '16px';
                 cell.style.opacity = '0';

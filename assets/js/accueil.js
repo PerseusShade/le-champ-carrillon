@@ -45,9 +45,14 @@
         runAnimation().catch(console.error);
     });
 
-    window.addEventListener('pageshow', (ev) => {
-        resetAnimationState();
-        runAnimation().catch(console.error);
+    const active = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
+    resetAnimationState();
+    runAnimation().catch(console.error).then(() => {
+        try {
+            if (active && document.contains(active)) {
+                try { active.focus({ preventScroll: true }); } catch (e) { active.focus(); }
+            }
+        } catch (e) {  }
     });
     window.addEventListener('pagehide', () => {
         resetAnimationState();

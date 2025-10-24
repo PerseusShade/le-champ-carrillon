@@ -770,6 +770,35 @@
         }
     }
 
+    // --- inserer après fixViewportHeight() definition ---
+    /**
+     * Helper global pour convertir un pourcentage de vh en px,
+     * en utilisant la variable CSS --vh mise à jour par fixViewportHeight().
+     * Usage : window.vhToPx(100) => hauteur en px équivalente à 100*var(--vh)
+     */
+    window.vhToPx = function(percent) {
+        try {
+            const raw = getComputedStyle(document.documentElement).getPropertyValue('--vh') || '';
+            const v = parseFloat(raw);
+            const oneVhPx = Number.isFinite(v) ? v : (window.visualViewport ? (window.visualViewport.height * 0.01) : (window.innerHeight * 0.01));
+            return oneVhPx * Number(percent);
+        } catch (e) {
+            return (window.innerHeight * 0.01) * Number(percent);
+        }
+    };
+
+    // Expose aussi un petit raccourci pour 1vh
+    window.oneVhPx = function() {
+        try {
+            const raw = getComputedStyle(document.documentElement).getPropertyValue('--vh') || '';
+            const v = parseFloat(raw);
+            if (Number.isFinite(v)) return v;
+            return window.visualViewport ? (window.visualViewport.height * 0.01) : (window.innerHeight * 0.01);
+        } catch (e) {
+            return (window.innerHeight * 0.01);
+        }
+    };
+
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', fixViewportHeight);
         window.visualViewport.addEventListener('scroll', fixViewportHeight);

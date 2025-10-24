@@ -97,11 +97,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 closeBtn.innerHTML = "&#10005;";
                 clone.appendChild(closeBtn);
 
-                const infoWrap = document.createElement("div");
-                infoWrap.className = "info-wrap";
-                const infoBox = document.createElement("div");
-                infoBox.className = "info-box";
+                const infoWrap = document.createElement('div');
+                infoWrap.className = 'info-wrap';
+                const infoBox = document.createElement('div');
+                infoBox.className = 'info-box scroll-fix-target';
                 infoBox.innerHTML = panel.dataset.infoText || "";
+                infoBox.setAttribute('tabindex', '0');
+                try {
+                    const headerHeightRaw = getComputedStyle(document.documentElement).getPropertyValue('--header-height') || '0px';
+                    const headerH = parseFloat(headerHeightRaw) || 0;
+                    const maxH = Math.max(120, Math.round(viewportHeight() - headerH - 120));
+                    infoBox.style.maxHeight = `${maxH}px`;
+                    infoBox.style.overflowY = 'auto';
+                    infoBox.style.boxSizing = 'border-box';
+                } catch (e) {}
                 infoWrap.appendChild(infoBox);
                 clone.appendChild(infoWrap);
 
