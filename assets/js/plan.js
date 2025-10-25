@@ -230,6 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ROTATE_MQ.addEventListener) ROTATE_MQ.addEventListener('change', updateFrameRotation); else if (ROTATE_MQ.addListener) ROTATE_MQ.addListener(updateFrameRotation);
 
     function positionPoints() {
+        if (!img || !overlay) return;
+
         const cs = getComputedStyle(img);
         const borderLeft = pxToNumber(cs.borderLeftWidth);
         const borderTop = pxToNumber(cs.borderTopWidth);
@@ -239,25 +241,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentWidth = Math.max(0, img.clientWidth - borderLeft - borderRight);
         const contentHeight = Math.max(0, img.clientHeight - borderTop - borderBottom);
 
-        const imgOffsetLeft = img.offsetLeft || 0;
-        const imgOffsetTop = img.offsetTop || 0;
-
         overlay.querySelectorAll('.map-point').forEach(btn => {
             const rawX = Number(btn.dataset.x);
             const rawY = Number(btn.dataset.y);
             if (!Number.isFinite(rawX) || !Number.isFinite(rawY)) {
-                btn.style.display = 'none'; return;
+                btn.style.display = 'none';
+                return;
             }
 
             const pxInsideX = (rawX / 100) * contentWidth;
             const pxInsideY = (rawY / 100) * contentHeight;
 
-            const localX = imgOffsetLeft + borderLeft + pxInsideX;
-            const localY = imgOffsetTop + borderTop + pxInsideY;
+            const leftPercent = ((borderLeft + pxInsideX) / img.clientWidth) * 100;
+            const topPercent  = ((borderTop  + pxInsideY) / img.clientHeight) * 100;
 
             btn.style.position = 'absolute';
-            btn.style.left = `${Math.round(localX)}px`;
-            btn.style.top = `${Math.round(localY)}px`;
+            btn.style.left = `${leftPercent}%`;
+            btn.style.top  = `${topPercent}%`;
             btn.style.display = '';
         });
 
