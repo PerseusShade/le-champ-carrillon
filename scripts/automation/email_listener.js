@@ -36,18 +36,18 @@ function loadCertBuffers() {
     const bufs = [];
     const intermediatesPath = '/tmp/ca/intermediates.pem';
     if (fs.existsSync(intermediatesPath)) {
-        try { bufs.push(fs.readFileSync(intermediatesPath)); } catch (e) { /* ignore */ }
+        try { bufs.push(fs.readFileSync(intermediatesPath)); } catch (e) {}
     }
     const leafPath = '/tmp/ca/mailserver.pem';
     if (fs.existsSync(leafPath)) {
-        try { bufs.push(fs.readFileSync(leafPath)); } catch (e) { /* ignore */ }
+        try { bufs.push(fs.readFileSync(leafPath)); } catch (e) {}
     }
     if (process.env.NODE_EXTRA_CA_CERTS && fs.existsSync(process.env.NODE_EXTRA_CA_CERTS)) {
-        try { bufs.push(fs.readFileSync(process.env.NODE_EXTRA_CA_CERTS)); } catch (e) { /* ignore */ }
+        try { bufs.push(fs.readFileSync(process.env.NODE_EXTRA_CA_CERTS)); } catch (e) {}
     }
     const systemCA = '/etc/ssl/certs/ca-certificates.crt';
     if (fs.existsSync(systemCA)) {
-        try { bufs.push(fs.readFileSync(systemCA)); } catch (e) { /* ignore */ }
+        try { bufs.push(fs.readFileSync(systemCA)); } catch (e) {}
     }
     return bufs;
 }
