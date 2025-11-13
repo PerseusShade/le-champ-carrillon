@@ -1,0 +1,11 @@
+{
+    "name": "email-automation",
+    "version": "1.0.0",
+    "description": "Email-driven auto merge automation for GitHub Actions",
+    "private": true,
+    "dependencies": {
+        "imap-simple": "^6.0.0",
+        "mailparser": "^3.6.2",
+        "@octokit/rest": "^19.0.7"
+    }
+}
