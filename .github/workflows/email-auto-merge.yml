@@ -1,0 +1,44 @@
+name: Email-triggered auto-merge and generator
+
+on:
+  schedule:
+    - cron: '0 0,12 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  email-auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Node deps for the automation script
+        working-directory: ./scripts/automation
+        run: |
+          npm ci || npm install
+
+      - name: Run email-processor
+        env:
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_SECURE: ${{ secrets.EMAIL_SECURE }}
+          ALLOWED_SENDERS: ${{ secrets.ALLOWED_SENDERS }}
+          TARGET_BRANCH: ${{ secrets.TARGET_BRANCH }}
+        run: |
+          if [ -z "$TARGET_BRANCH" ]; then export TARGET_BRANCH="main"; fi
+          node ./scripts/automation/email_listener.js
