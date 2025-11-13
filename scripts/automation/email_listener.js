@@ -31,6 +31,21 @@ if (!GITHUB_TOKEN) {
 const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
 async function main() {
+    const caFileCandidates = [
+        process.env.NODE_EXTRA_CA_CERTS,
+        '/etc/ssl/certs/ca-certificates.crt',
+        '/etc/pki/tls/certs/ca-bundle.crt'
+    ].filter(Boolean);
+
+    let caFile;
+    for (const c of caFileCandidates) {
+        if (fs.existsSync(c)) { caFile = c; break; }
+    }
+    console.log('CA file used:', caFile || '(none)');
+    if (!caFile) {
+        console.warn('Aucun bundle CA trouvé parmi:', caFileCandidates.join(', '));
+    }
+
     const config = {
         imap: {
             user: EMAIL_USER,
@@ -40,10 +55,8 @@ async function main() {
             tls: EMAIL_SECURE,
             authTimeout: 30000,
             tlsOptions: {
-                ca: (process.env.NODE_EXTRA_CA_CERTS && fs.existsSync(process.env.NODE_EXTRA_CA_CERTS))
-                    ? [ fs.readFileSync(process.env.NODE_EXTRA_CA_CERTS) ]
-                    : undefined,
-                rejectUnauthorized: true
+            ca: caFile ? [ fs.readFileSync(caFile) ] : undefined,
+            rejectUnauthorized: true
             }
         }
     };
