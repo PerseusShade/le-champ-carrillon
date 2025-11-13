@@ -32,13 +32,13 @@ jobs:
 
       - name: Run email-processor
         env:
-          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
-          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_HOST: ${{ vars.EMAIL_HOST }}
+          EMAIL_PORT: ${{ vars.EMAIL_PORT }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-          EMAIL_SECURE: ${{ secrets.EMAIL_SECURE }}
+          EMAIL_SECURE: ${{ vars.EMAIL_SECURE }}
           ALLOWED_SENDERS: ${{ secrets.ALLOWED_SENDERS }}
-          TARGET_BRANCH: ${{ secrets.TARGET_BRANCH }}
+          TARGET_BRANCH: ${{ vars.TARGET_BRANCH }}
         run: |
           if [ -z "$TARGET_BRANCH" ]; then export TARGET_BRANCH="main"; fi
           node ./scripts/automation/email_listener.js
