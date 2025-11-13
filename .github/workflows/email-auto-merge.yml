@@ -64,7 +64,6 @@ jobs:
           EMAIL_SECURE: ${{ vars.EMAIL_SECURE }}
           ALLOWED_SENDERS: ${{ secrets.ALLOWED_SENDERS }}
           TARGET_BRANCH: ${{ vars.TARGET_BRANCH }}
-          NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
         run: |
           if [ -z "$TARGET_BRANCH" ]; then export TARGET_BRANCH="main"; fi
           node ./scripts/automation/email_listener.js
