@@ -76,6 +76,98 @@ jobs:
             echo "No /tmp/ca/mailserver.pem"
           fi
 
+      - name: Build combined CA bundle (download issuer from AIA if needed)
+        env:
+          EMAIL_HOST: ${{ vars.EMAIL_HOST }}
+          EMAIL_PORT: ${{ vars.EMAIL_PORT }}
+        run: |
+          set -e
+          mkdir -p /tmp/ca
+          # si on n'a pas encore le cert leaf, on le récupère
+          if [ ! -s /tmp/ca/mailserver.pem ]; then
+            openssl s_client -showcerts -connect "${EMAIL_HOST}:${EMAIL_PORT}" -servername "${EMAIL_HOST}" </dev/null 2>/dev/null \
+              | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/ca/mailserver.pem || true
+          fi
+
+          if [ ! -s /tmp/ca/mailserver.pem ]; then
+            echo "Erreur : /tmp/ca/mailserver.pem introuvable ou vide"
+            exit 1
+          fi
+
+          echo "Parsed cert info:"
+          openssl x509 -noout -subject -issuer -dates -in /tmp/ca/mailserver.pem || true
+
+          # Extraire les URLs AIA (CA Issuers)
+          AIA_URLS=$(openssl x509 -noout -text -in /tmp/ca/mailserver.pem \
+                    | sed -n '/Authority Information Access/,$p' \
+                    | sed -n '1,6p' \
+                    | grep -i 'CA Issuers' -A1 \
+                    | sed -n 's/.*http/ http/p' \
+                    | tr -s ' ' '\n' \
+                    | sed -n 's/^http/https/p' || true)
+
+          # Alternative plus robuste pour récupérer toutes les URLs HTTP(S)
+          if [ -z "$AIA_URLS" ]; then
+            AIA_URLS=$(openssl x509 -noout -text -in /tmp/ca/mailserver.pem \
+                      | grep -oE 'http[s]?://[^ )]+' || true)
+          fi
+
+          echo "AIA URLs found:"
+          echo "$AIA_URLS"
+
+          # Téléchargement des certificats intermédiaires (s'il y en a)
+          INTERMEDIATES=/tmp/ca/intermediates.pem
+          : > "$INTERMEDIATES"
+          for url in $AIA_URLS; do
+            echo "Downloading issuer from $url ..."
+            # essayer d'abord en binaire, sinon en texte
+            curl -fsSL "$url" -o /tmp/ca/issuer.der || true
+            if [ -s /tmp/ca/issuer.der ]; then
+              # tenter DER -> PEM si c'est un DER
+              if openssl x509 -inform der -in /tmp/ca/issuer.der -out /tmp/ca/issuer.pem 2>/dev/null; then
+                cat /tmp/ca/issuer.pem >> "$INTERMEDIATES"
+                rm -f /tmp/ca/issuer.der /tmp/ca/issuer.pem
+                continue
+              else
+                rm -f /tmp/ca/issuer.der
+              fi
+            fi
+            # tentative en PEM directement
+            curl -fsSL "$url" -o /tmp/ca/issuer.pem || true
+            if [ -s /tmp/ca/issuer.pem ]; then
+              cat /tmp/ca/issuer.pem >> "$INTERMEDIATES"
+              rm -f /tmp/ca/issuer.pem
+            fi
+          done
+
+          if [ -s "$INTERMEDIATES" ]; then
+            echo "Intermediate(s) downloaded and appended to $INTERMEDIATES"
+          else
+            echo "No intermediate downloaded from AIA (server may have omitted chain)."
+          fi
+
+          # Construire le bundle : intermediates (s'il y en a) + leaf + store système
+          COMBINED=/tmp/ca/combined-ca.pem
+          : > "$COMBINED"
+          if [ -s "$INTERMEDIATES" ]; then
+            cat "$INTERMEDIATES" >> "$COMBINED"
+          fi
+          # rajouter le leaf (ceci garantit que la chaîne ait l'intermédiaire avant le leaf)
+          cat /tmp/ca/mailserver.pem >> "$COMBINED"
+          # puis le store système
+          if [ -f /etc/ssl/certs/ca-certificates.crt ]; then
+            cat /etc/ssl/certs/ca-certificates.crt >> "$COMBINED"
+          fi
+
+          # Vérif
+          echo "Combined bundle size:"
+          ls -l "$COMBINED" || true
+          echo "First cert in combined bundle:"
+          head -n 40 "$COMBINED" || true
+
+          # Exposer pour Node
+          echo "NODE_EXTRA_CA_CERTS=$COMBINED" >> $GITHUB_ENV
+
       - name: Run email-processor
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
