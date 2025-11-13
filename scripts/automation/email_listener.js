@@ -79,6 +79,10 @@ async function main() {
 
     const messages = await connection.search(searchCriteria, fetchOptions);
 
+    console.log(`Found ${messages.length} unseen message(s).`);
+
+    const mergedBranches = [];
+
     for (const item of messages) {
         const all = item.parts.find(p => p.which === 'HEADER.FIELDS (FROM TO SUBJECT DATE)');
         const header = all ? all.body : {};
@@ -91,7 +95,10 @@ async function main() {
         const match = fromAddr.match(/<([^>]+)>/);
         const fromEmail = match ? match[1] : fromAddr.split(/\s+/).pop();
 
+        console.log(`Processing mail from "${fromEmail}" subject "${subject}"`);
+
         if (!ALLOWED_SENDERS.includes(fromEmail)) {
+            console.log(` -> sender ${fromEmail} not allowed; marking seen and skipping.`);
             await connection.addFlags(item.attributes.uid, '\\Seen');
             continue;
         }
@@ -106,38 +113,56 @@ async function main() {
         }
 
         if (!branchExists) {
+            console.log(` -> branch "${branchName}" does not exist; marking seen and skipping.`);
             await connection.addFlags(item.attributes.uid, '\\Seen');
             continue;
         }
 
         try {
+            console.log(` -> Merging branch "${branchName}" into "${TARGET_BRANCH}"...`);
             const mergeResp = await octokit.repos.merge({
                 owner,
                 repo,
                 base: TARGET_BRANCH,
                 head: branchName,
             });
+            console.log(` -> Merge API response: ${mergeResp.status}`);
+            mergedBranches.push(branchName);
 
             const m = branchName.match(/^pending\/(actualite|index|galerie)_.+$/);
             if (m) {
                 const type = m[1];
+                console.log(` -> Detected type "${type}" from branch name. Executing generator...`);
+
                 try {
                     if (type === 'actualite') {
+                        console.log('  Running: python3 scripts/generate_actualites.py');
                         execSync('python3 scripts/generate_actualites.py', { stdio: 'inherit' });
                     } else {
                         const scriptPath = `scripts/generate_${type}_json.js`;
+                        console.log(`  Running: node ${scriptPath}`);
                         execSync(`node ${scriptPath}`, { stdio: 'inherit' });
                     }
                 } catch (runErr) {
-                    console.error('Error while executing generator script:', runErr);
+                    console.error('    Error while executing generator script:', runErr);
                 }
+            } else {
+                console.log(' -> Branch not matching generator pattern; skipping generator.');
             }
+
             await connection.addFlags(item.attributes.uid, '\\Seen');
         } catch (mergeErr) {
-            console.error('Merge failed:', mergeErr.message || mergeErr);
+            console.error(' -> Merge failed:', mergeErr.message || mergeErr);
             await connection.addFlags(item.attributes.uid, '\\Seen');
         }
     }
+
+    if (mergedBranches.length) {
+        console.log(`Merged ${mergedBranches.length} branch(es): ${mergedBranches.join(', ')}`);
+    } else {
+        console.log('No branches merged during this run.');
+    }
+
     await connection.end();
 }
 
