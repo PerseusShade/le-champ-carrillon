@@ -1,26 +1,3 @@
-/**
- * scripts/automation/email_listener.js
- *
- * Requirements (package.json listé plus bas) :
- *    - imap-simple
- *    - mailparser
- *    - @octokit/rest
- *
- * Variables d'environnement attendues :
- *    - EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, EMAIL_SECURE ("true"/"false")
- *    - ALLOWED_SENDERS (comma-separated)
- *    - GITHUB_TOKEN
- *    - GITHUB_REPOSITORY is provided automatically by Actions (owner/repo)
- *    - TARGET_BRANCH (branch cible, ex: "main" ou "gh-pages")
- *
- * Le script :
- *    - lit tous les mails UNSEEN
- *    - vérifie l'expéditeur
- *    - si l'objet est un nom de branche existant -> merge dans TARGET_BRANCH
- *    - si branche match "pending/{type}_..." et type ∈ [actualite,index,galerie]
- *        -> lance le script associé
- */
-
 const imaps = require('imap-simple');
 const { Octokit } = require('@octokit/rest');
 const { execSync } = require('child_process');
@@ -61,6 +38,12 @@ async function main() {
             port: EMAIL_PORT,
             tls: EMAIL_SECURE,
             authTimeout: 30000,
+            tlsOptions: {
+                ca: (process.env.NODE_EXTRA_CA_CERTS && fs.existsSync(process.env.NODE_EXTRA_CA_CERTS))
+                    ? [ fs.readFileSync(process.env.NODE_EXTRA_CA_CERTS) ]
+                    : undefined,
+                rejectUnauthorized: true
+            }
         }
     };
 
