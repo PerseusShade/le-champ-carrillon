@@ -54,6 +54,28 @@ jobs:
             echo "No certificate retrieved from ${EMAIL_HOST}:${EMAIL_PORT}. Continuing without adding cert."
           fi
 
+      - name: Debug IMAP TLS / DNS from runner
+        env:
+          EMAIL_HOST: ${{ vars.EMAIL_HOST }}
+          EMAIL_PORT: ${{ vars.EMAIL_PORT }}
+        run: |
+          set -e
+          echo "Resolve $EMAIL_HOST"
+          nslookup "$EMAIL_HOST" || dig +short "$EMAIL_HOST" || true
+
+          echo; echo "OpenSSL s_client (show cert chain) :"
+          openssl s_client -connect "${EMAIL_HOST}:${EMAIL_PORT}" -servername "${EMAIL_HOST}" -showcerts </dev/null 2>/dev/null | sed -n '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p'
+
+          echo; echo "Cert file saved head:"
+          head -n 120 /tmp/ca/mailserver.pem || true
+
+          echo; echo "Cert parsed (subject / issuer / dates):"
+          if [ -s /tmp/ca/mailserver.pem ]; then
+            openssl x509 -in /tmp/ca/mailserver.pem -noout -subject -issuer -dates -serial || true
+          else
+            echo "No /tmp/ca/mailserver.pem"
+          fi
+
       - name: Run email-processor
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
