@@ -32,6 +32,7 @@ jobs:
 
       - name: Run email-processor
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EMAIL_HOST: ${{ vars.EMAIL_HOST }}
           EMAIL_PORT: ${{ vars.EMAIL_PORT }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
