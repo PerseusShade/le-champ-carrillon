@@ -1,6 +1,7 @@
 const imaps = require('imap-simple');
 const { Octokit } = require('@octokit/rest');
 const { execSync } = require('child_process');
+const fs = require('fs');
 
 const OWNER_REPO = process.env.GITHUB_REPOSITORY || '';
 if (!OWNER_REPO) {
