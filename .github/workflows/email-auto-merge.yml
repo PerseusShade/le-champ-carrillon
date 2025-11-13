@@ -36,6 +36,26 @@ jobs:
           sudo apt-get install -y ca-certificates
           sudo update-ca-certificates
 
+      - name: Fetch mailserver cert and trust it for Node
+        env:
+          EMAIL_HOST: ${{ vars.EMAIL_HOST }}
+          EMAIL_PORT: ${{ vars.EMAIL_PORT }}
+        run: |
+          set -e
+          echo "Fetching certificate from ${EMAIL_HOST}:${EMAIL_PORT}..."
+          mkdir -p /tmp/ca
+          # récupère les certificats présentés par le serveur (port 993 si TLS)
+          openssl s_client -showcerts -connect "${EMAIL_HOST}:${EMAIL_PORT}" -servername "${EMAIL_HOST}" </dev/null 2>/dev/null \
+            | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/ca/mailserver.pem || true
+
+          if [ -s /tmp/ca/mailserver.pem ]; then
+            echo "Mailserver cert saved to /tmp/ca/mailserver.pem"
+            # expose la variable pour les étapes suivantes
+            echo "NODE_EXTRA_CA_CERTS=/tmp/ca/mailserver.pem" >> $GITHUB_ENV
+          else
+            echo "No certificate retrieved from ${EMAIL_HOST}:${EMAIL_PORT}. Continuing without adding cert."
+          fi
+
       - name: Run email-processor
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
