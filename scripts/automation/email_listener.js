@@ -182,20 +182,33 @@ async function main() {
                         execSync('git add -A actualites || true', { stdio: 'inherit' });
 
                         const status = execSync('git status --porcelain').toString().trim();
-                        if (!status) {
-                            console.log(' -> Aucun changement à committer.');
-                        } else {
-                            execSync('git commit -m "ci: génération actualités (auto) [skip ci]"', { stdio: 'inherit' });
+                            if (!status) {
+                                console.log(' -> Aucun changement à committer.');
+                            } else {
+                                execSync('git commit -m "ci: génération actualités (auto) [skip ci]"', { stdio: 'inherit' });
 
-                            const remote = `https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
-                            execSync(`git remote set-url origin ${remote}`);
-                            execSync(`git push origin ${TARGET_BRANCH}`, { stdio: 'inherit' });
+                                const remote = `https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
+                                execSync(`git remote set-url origin ${remote}`);
 
-                            console.log(' -> Fichiers générés commités et poussés vers', TARGET_BRANCH);
+                                console.log(` -> fetching origin/${TARGET_BRANCH}...`);
+                                execSync(`git fetch origin ${TARGET_BRANCH}`, { stdio: 'inherit' });
+
+                                try {
+                                    console.log(` -> rebasing on origin/${TARGET_BRANCH}...`);
+                                    execSync(`git rebase origin/${TARGET_BRANCH}`, { stdio: 'inherit' });
+                                } catch (rebaseErr) {
+                                    console.error('    Rebase failed — aborting rebase and skipping push.');
+                                    try { execSync('git rebase --abort', { stdio: 'inherit' }); } catch(e) {}
+                                    throw rebaseErr;
+                                }
+
+                                console.log(` -> pushing to ${TARGET_BRANCH}...`);
+                                execSync(`git push origin ${TARGET_BRANCH}`, { stdio: 'inherit' });
+                                console.log(' -> Push succeeded.');
+                            }
+                        } catch (gitErr) {
+                            console.error('    Erreur lors du commit/push (fetch/rebase/push) :', gitErr);
                         }
-                    } catch (gitErr) {
-                        console.error('    Erreur lors du commit/push :', gitErr);
-                    }
                 } catch (runErr) {
                     console.error('    Error while executing generator script:', runErr);
                 }
