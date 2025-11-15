@@ -52,6 +52,32 @@ function loadCertBuffers() {
     return bufs;
 }
 
+function decodeRFC2047(subject) {
+    if (!subject) return subject;
+    return subject.replace(/=\?([^?]+)\?([BQbq])\?([^?]+)\?=/g, (match, charset, enc, text) => {
+        try {
+            if ((enc || '').toUpperCase() === 'B') {
+                const buf = Buffer.from(text.replace(/\s/g, ''), 'base64');
+                return buf.toString(charset || 'utf8');
+            } else {
+                return text.replace(/_/g, ' ').replace(/=([A-Fa-f0-9]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+            }
+        } catch (e) {
+            return match;
+        }
+    });
+}
+
+function normalizeSubject(raw) {
+    if (!raw) return '';
+    let s = String(raw);
+    s = decodeRFC2047(s);
+    s = s.replace(/\r?\n|\r/g, ' ').replace(/\s+/g, ' ').trim();
+    s = s.replace(/^(?:\s*(?:re|fwd|fw)\s*[:\-]\s*)+/i, '').trim();
+    s = s.replace(/^["']|["']$/g, '').trim();
+    return s;
+}
+
 async function main() {
     const caBuffers = loadCertBuffers();
 
@@ -103,51 +129,50 @@ async function main() {
             continue;
         }
 
-        const branchName = subject;
+        const normalizedBranchName = normalizeSubject(subject);
+
         let branchExists = false;
         try {
-            await octokit.repos.getBranch({ owner, repo, branch: branchName });
+            await octokit.repos.getBranch({ owner, repo, branch: normalizedBranchName });
             branchExists = true;
         } catch (err) {
             branchExists = false;
         }
 
         if (!branchExists) {
-            console.log(` -> branch "${branchName}" does not exist; marking seen and skipping.`);
+            console.log(` -> branch "${normalizedBranchName}" does not exist; marking seen and skipping.`);
             await connection.addFlags(item.attributes.uid, '\\Seen');
             continue;
         }
 
         try {
-            console.log(` -> Merging branch "${branchName}" into "${TARGET_BRANCH}"...`);
+            console.log(` -> Merging branch "${normalizedBranchName}" into "${TARGET_BRANCH}"...`);
             const mergeResp = await octokit.repos.merge({
                 owner,
                 repo,
                 base: TARGET_BRANCH,
-                head: branchName,
+                head: normalizedBranchName,
             });
             console.log(` -> Merge API response: ${mergeResp.status}`);
-            mergedBranches.push(branchName);
+            mergedBranches.push(normalizedBranchName);
 
-            const m = branchName.match(/^pending\/(actualite|index|galerie)_.+$/);
-            if (m) {
-                const type = m[1];
-                console.log(` -> Detected type "${type}" from branch name. Executing generator...`);
-
+            const normalized = normalizeSubject(subject);
+            const kwMatch = normalized.match(/\b(actualite|index|galerie)\b/i);
+            if (kwMatch) {
+                const type = kwMatch[1].toLowerCase();
+                console.log(` -> Detected type "${type}" from subject; executing generator...`);
                 try {
                     if (type === 'actualite') {
-                        console.log('  Running: python3 scripts/generate_actualites.py');
                         execSync('python3 scripts/generate_actualites.py', { stdio: 'inherit' });
                     } else {
                         const scriptPath = `scripts/generate_${type}_json.js`;
-                        console.log(`  Running: node ${scriptPath}`);
                         execSync(`node ${scriptPath}`, { stdio: 'inherit' });
                     }
                 } catch (runErr) {
                     console.error('    Error while executing generator script:', runErr);
                 }
             } else {
-                console.log(' -> Branch not matching generator pattern; skipping generator.');
+                console.log(' -> No generator keyword found in subject; skipping generator.');
             }
 
             await connection.addFlags(item.attributes.uid, '\\Seen');
