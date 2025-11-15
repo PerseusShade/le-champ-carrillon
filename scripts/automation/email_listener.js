@@ -222,6 +222,18 @@ async function main() {
                 console.log(' -> No generator keyword found in subject; skipping generator.');
             }
 
+            try {
+                console.log(` -> Deleting remote branch ${normalizedBranchName}...`);
+                await octokit.git.deleteRef({
+                    owner,
+                    repo,
+                    ref: `heads/${normalizedBranchName}`
+                });
+                console.log(` -> Branch ${normalizedBranchName} deleted successfully.`);
+            } catch (delErr) {
+                console.error(` -> Failed to delete branch ${normalizedBranchName}:`, delErr);
+            }
+
             await connection.addFlags(item.attributes.uid, '\\Seen');
         } catch (mergeErr) {
             console.error(' -> Merge failed:', mergeErr.message || mergeErr);
