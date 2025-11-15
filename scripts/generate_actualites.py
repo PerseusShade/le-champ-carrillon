@@ -1,7 +1,9 @@
 from pathlib import Path
 from datetime import datetime
+import os
 
-BASE_DIR    = Path(__file__).resolve().parent.parent.parent
+env_base    = os.environ.get("BASE_DIR", "").strip()
+BASE_DIR    = Path(env_base).resolve()
 INPUT_BASE  = BASE_DIR / "assets" / "actualites"
 OUTPUT_FILE = BASE_DIR / "actualites" / "index.html"
 
