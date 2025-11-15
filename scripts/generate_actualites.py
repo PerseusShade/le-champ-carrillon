@@ -2,8 +2,12 @@ from pathlib import Path
 from datetime import datetime
 import os
 
-env_base    = os.environ.get("BASE_DIR", "").strip()
-BASE_DIR    = Path(env_base).resolve()
+env_base = os.environ.get("BASE_DIR", "").strip()
+if env_base:
+    BASE_DIR = Path(env_base).resolve()
+else:
+    BASE_DIR = Path.cwd()
+
 INPUT_BASE  = BASE_DIR / "assets" / "actualites"
 OUTPUT_FILE = BASE_DIR / "actualites" / "index.html"
 
