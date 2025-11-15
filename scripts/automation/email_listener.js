@@ -156,6 +156,11 @@ async function main() {
             console.log(` -> Merge API response: ${mergeResp.status}`);
             mergedBranches.push(normalizedBranchName);
 
+            console.log(` -> Syncing local branch ${TARGET_BRANCH} with merged changes...`);
+            execSync(`git fetch origin ${TARGET_BRANCH}`, { stdio: 'inherit' });
+            execSync(`git checkout ${TARGET_BRANCH}`, { stdio: 'inherit' });
+            execSync(`git reset --hard origin/${TARGET_BRANCH}`, { stdio: 'inherit' });
+
             const normalized = normalizeSubject(subject);
             const kwMatch = normalized.match(/(actualite|index|galerie)/i);
             if (kwMatch) {

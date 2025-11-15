@@ -1,11 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 
-const SOURCE_DIR = path.join(__dirname, '../assets/img/full');
+const BASE_DIR = process.env.BASE_DIR || process.cwd();
 
-const OUTPUT_FILE = path.join(__dirname, '../assets/img/galerie/manifest.json');
+const SOURCE_DIR = path.join(BASE_DIR, 'assets', 'img', 'full');
+const OUTPUT_DIR  = path.join(BASE_DIR, 'assets', 'img', 'galerie');
+const OUTPUT_FILE = path.join(OUTPUT_DIR, 'manifest.json');
 
 const EXTENSIONS = /\.(jpe?g|png|gif)$/i;
+
+if (!fs.existsSync(OUTPUT_DIR)) {
+    fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+}
 
 function walkDir(dir, fileList = []) {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -15,7 +21,7 @@ function walkDir(dir, fileList = []) {
         if (entry.isDirectory()) {
             walkDir(fullPath, fileList);
         } else if (entry.isFile() && EXTENSIONS.test(entry.name)) {
-            const relPath = path.relative(path.join(__dirname, '../assets/img/galerie'), fullPath).split(path.sep).join('/');
+            const relPath = path.relative(OUTPUT_DIR, fullPath).split(path.sep).join('/');
             fileList.push(relPath);
         }
     }
