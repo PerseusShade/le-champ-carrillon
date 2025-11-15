@@ -1,12 +1,9 @@
-import locale
 from pathlib import Path
 from datetime import datetime
 
 BASE_DIR    = Path(__file__).resolve().parent.parent.parent
 INPUT_BASE  = BASE_DIR / "assets" / "actualites"
 OUTPUT_FILE = BASE_DIR / "actualites" / "index.html"
-
-locale.setlocale(locale.LC_TIME, "fr_FR.UTF-8")
 
 JOURS_FR = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
 MOIS_FR  = [
