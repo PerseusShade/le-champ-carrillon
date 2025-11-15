@@ -163,14 +163,43 @@ async function main() {
                 console.log(` -> Detected type "${type}" from subject; executing generator...`);
                 try {
                     if (type === 'actualite') {
-                        execSync('python3 scripts/generate_actualites.py', { stdio: 'inherit' });
+                        execSync('python3 scripts/generate_actualites.py', {
+                            stdio: 'inherit',
+                            env: { ...process.env, BASE_DIR: process.cwd() }
+                        });
                     } else {
                         const scriptPath = `scripts/generate_${type}_json.js`;
-                        execSync(`node ${scriptPath}`, { stdio: 'inherit' });
+                        execSync(`node ${scriptPath}`, {
+                            stdio: 'inherit',
+                            env: { ...process.env, BASE_DIR: process.cwd() }
+                        });
+                    }
+
+                    try {
+                        execSync('git config user.email "github-actions[bot]@users.noreply.github.com"');
+                        execSync('git config user.name "github-actions[bot]"');
+
+                        execSync('git add -A actualites || true', { stdio: 'inherit' });
+
+                        const status = execSync('git status --porcelain').toString().trim();
+                        if (!status) {
+                            console.log(' -> Aucun changement à committer.');
+                        } else {
+                            execSync('git commit -m "ci: génération actualités (auto) [skip ci]"', { stdio: 'inherit' });
+
+                            const remote = `https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${process.env.GITHUB_REPOSITORY}.git`;
+                            execSync(`git remote set-url origin ${remote}`);
+                            execSync(`git push origin ${TARGET_BRANCH}`, { stdio: 'inherit' });
+
+                            console.log(' -> Fichiers générés commités et poussés vers', TARGET_BRANCH);
+                        }
+                    } catch (gitErr) {
+                        console.error('    Erreur lors du commit/push :', gitErr);
                     }
                 } catch (runErr) {
                     console.error('    Error while executing generator script:', runErr);
                 }
+
             } else {
                 console.log(' -> No generator keyword found in subject; skipping generator.');
             }
