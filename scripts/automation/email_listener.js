@@ -157,7 +157,7 @@ async function main() {
             mergedBranches.push(normalizedBranchName);
 
             const normalized = normalizeSubject(subject);
-            const kwMatch = normalized.match(/\b(actualite|index|galerie)\b/i);
+            const kwMatch = normalized.match(/(actualite|index|galerie)/i);
             if (kwMatch) {
                 const type = kwMatch[1].toLowerCase();
                 console.log(` -> Detected type "${type}" from subject; executing generator...`);
