@@ -13,13 +13,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     const durationPerSlide = 8;
     const totalDuration = durationPerSlide * slides.length;
 
+    const style = document.createElement('style');
+    let animationCSS = '';
+
+    if (slides.length > 1) {
+        const fadeTime = 1.5;
+        const pFadeIn = (fadeTime / totalDuration) * 100;
+        const pVisible = (durationPerSlide / totalDuration) * 100;
+        const pFadeOut = ((durationPerSlide + fadeTime) / totalDuration) * 100;
+
+        animationCSS = `
+            @keyframes dynamicSlideAnimation {
+                0% { opacity: 0; transform: scale(1); }
+                ${pFadeIn}% { opacity: 1; transform: scale(1.02); }
+                ${pVisible}% { opacity: 1; transform: scale(1.18); }
+                ${pFadeOut}% { opacity: 0; transform: scale(1.20); }
+                100% { opacity: 0; transform: scale(1.20); }
+            }
+        `;
+    } else {
+        animationCSS = `
+            @keyframes dynamicSlideAnimation {
+                0% { opacity: 0; transform: scale(1); }
+                10% { opacity: 1; transform: scale(1.02); }
+                100% { opacity: 1; transform: scale(1.20); }
+            }
+        `;
+    }
+
+    style.innerHTML = animationCSS;
+    document.head.appendChild(style);
+
     slides.forEach((img, index) => {
         const slide = document.createElement('div');
         slide.className = 'slide';
         slide.style.backgroundImage = `url('./assets/img/index/${img}')`;
 
         const delay = durationPerSlide * index;
-        slide.style.animation = `slideAnimation ${totalDuration}s infinite ease-in-out`;
+        slide.style.animation = `dynamicSlideAnimation ${totalDuration}s infinite ease-in-out`;
         slide.style.animationDelay = `${delay}s`;
 
         container.appendChild(slide);
