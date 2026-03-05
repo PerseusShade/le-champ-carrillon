@@ -202,7 +202,7 @@ async function main() {
                                 console.log(` -> rebasing on origin/${TARGET_BRANCH}...`);
                                 execSync(`git rebase origin/${TARGET_BRANCH}`, { stdio: 'inherit' });
                             } catch (rebaseErr) {
-                                console.error('    Rebase failed — aborting rebase and skipping push.');
+                                console.error('    Rebase failed - aborting rebase and skipping push.');
                                 try { execSync('git rebase --abort', { stdio: 'inherit' }); } catch(e) {}
                                 throw rebaseErr;
                             }
