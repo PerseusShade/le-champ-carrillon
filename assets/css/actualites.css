@@ -122,6 +122,16 @@ body {
     pointer-events: none;
 }
 
+.fade-in-fast {
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+    will-change: opacity;
+}
+
+.fade-in-fast.show {
+    opacity: 1;
+}
+
 .see-more-wrapper {
     text-align: center;
     margin: 28px 0 64px;
