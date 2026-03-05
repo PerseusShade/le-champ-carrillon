@@ -107,10 +107,27 @@ document.addEventListener("DOMContentLoaded", () => {
     (function(){
         const title = document.querySelector('.actualites-title');
         const posts = Array.from(document.querySelectorAll('.post'));
+        const loadMoreBtn = document.querySelector('.see-more-btn');
+
         if (!posts.length) return;
 
+        const POSTS_PER_PAGE = 5;
+        let visibleCount = POSTS_PER_PAGE;
+        let allVisible = posts.length <= visibleCount;
+
+        if (!allVisible) {
+            posts.forEach((p, i) => {
+                if (i >= visibleCount) {
+                    p.style.display = 'none';
+                }
+            });
+        }
+
         if (title && !title.classList.contains('fade-in')) title.classList.add('fade-in');
-        posts.forEach(p => p.classList.add('fade-in'));
+
+        posts.forEach(p => {
+            if (p.style.display !== 'none') p.classList.add('fade-in');
+        });
 
         let animationTimers = [];
         let postsAnimated = false;
@@ -127,13 +144,15 @@ document.addEventListener("DOMContentLoaded", () => {
             requestAnimationFrame(() => {
                 const viewportBottom = window.innerHeight;
                 const margin = 20;
-                const visible = posts.filter(p => p.getBoundingClientRect().top < viewportBottom - margin);
-                const hidden = posts.filter(p => !visible.includes(p));
+
+                const activePosts = posts.filter(p => p.style.display !== 'none');
+                const visible = activePosts.filter(p => p.getBoundingClientRect().top < viewportBottom - margin);
+                const hidden = activePosts.filter(p => !visible.includes(p));
 
                 hidden.forEach(p => p.classList.remove('fade-in'));
 
                 if (title) title.classList.remove('show');
-                posts.forEach(p => p.classList.remove('show'));
+                activePosts.forEach(p => p.classList.remove('show'));
 
                 const delayBeforeTitle = 250;
                 const startAfterTitle = 220;
@@ -171,6 +190,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 animatePostsByVisibility();
             }, 140);
         });
+
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', (e) => {
+                if (allVisible) return;
+
+                e.preventDefault();
+
+                const nextCount = visibleCount + POSTS_PER_PAGE;
+
+                for (let i = visibleCount; i < nextCount && i < posts.length; i++) {
+                    posts[i].style.display = '';
+                    posts[i].classList.add('fade-in');
+                }
+
+                visibleCount = nextCount;
+
+                if (visibleCount >= posts.length) {
+                    allVisible = true;
+                }
+
+                fixOddImages();
+
+                setTimeout(() => {
+                    animatePostsByVisibility();
+                }, 50);
+            });
+        }
     })();
 
     const allImages = document.querySelectorAll('.post-photos img');
