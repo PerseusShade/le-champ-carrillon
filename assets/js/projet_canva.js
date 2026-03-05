@@ -37,7 +37,7 @@
     let svgEl = null;
     let petalUses = [];
     let perUsePath2D = [];
-    let images = [];
+    let images = new Array(IMAGES.length).fill(null);
     let imageRectCache = { w: 0, h: 0, rects: [] };
     let rafId = null;
     let lastActivityTs = 0;
@@ -81,15 +81,6 @@
         imageRectCache.rects = [];
     }
 
-    function preloadImages(srcs) {
-        return Promise.all(srcs.map(src => new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = (e) => { console.warn('img load err', src, e); resolve(null); };
-            img.src = src;
-        })));
-    }
-
     function computeImageDrawRect(img, viewportW, viewportH, fitMode) {
         const iw = img.width, ih = img.height;
         if (!iw || !ih) return { x: 0, y: 0, w: viewportW, h: viewportH };
@@ -117,56 +108,7 @@
 
     function buildPath2DsForUses() {
         perUsePath2D = new Array(petalUses.length).fill(null);
-
-        petalUses.forEach((useEl, i) => {
-            if (!useEl.classList.contains('visible')) return;
-
-            const img = images[i];
-            const path2d = perUsePath2D[i];
-            if (!img || !path2d) return;
-
-            let alpha = perPetalAlpha[i] != null ? perPetalAlpha[i] : 0;
-            const fade = perPetalFade[i];
-            if (fade) {
-                const now = performance.now();
-                const t = Math.min(1, (now - fade.start) / FADE_DURATION_MS);
-                const eased = t * t * (3 - 2 * t);
-                alpha = fade.from + (fade.to - fade.from) * eased;
-                if (t >= 1) {
-                    alpha = fade.to;
-                    perPetalFade[i] = null;
-                }
-                perPetalAlpha[i] = alpha;
-            }
-
-            const screenCTM = useEl.getScreenCTM();
-            if (!screenCTM) return;
-
-            ctx.save();
-
-            if (ATTACH_TO_VIEWPORT) {
-                const a = screenCTM.a, b = screenCTM.b, c = screenCTM.c, d = screenCTM.d, e = screenCTM.e, f = screenCTM.f;
-                ctx.setTransform(a * dpr, b * dpr, c * dpr, d * dpr, e * dpr, f * dpr);
-
-                try { ctx.beginPath(); ctx.clip(path2d); } catch (err) {}
-
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                ctx.globalAlpha = alpha;
-                const rect = getImageRectForIndex(i, img);
-                ctx.drawImage(img, rect.x, rect.y, rect.w, rect.h);
-                ctx.globalAlpha = 1.0;
-            } else {
-                const a = screenCTM.a, b = screenCTM.b, c = screenCTM.c, d = screenCTM.d, e = screenCTM.e, f = screenCTM.f;
-                ctx.setTransform(a * dpr, b * dpr, c * dpr, d * dpr, e * dpr, f * dpr);
-                try { ctx.beginPath(); ctx.clip(path2d); } catch (err) {}
-                ctx.globalAlpha = alpha;
-                const huge = 4000;
-                ctx.drawImage(img, -huge/2, -huge/2, huge, huge);
-                ctx.globalAlpha = 1.0;
-            }
-
-            ctx.restore();
-        });
+        petalUses.forEach((useEl, i) => buildPath2DForIndex(i));
     }
 
     function buildPath2DForIndex(idx) {
@@ -180,8 +122,10 @@
 
             const aggregate = new Path2D();
             function addD(d) { if (!d) return; try { const p = new Path2D(d); if (typeof aggregate.addPath === 'function') aggregate.addPath(p); else perUsePath2D[idx] = p; } catch(e){} }
-            if (target.tagName.toLowerCase() === 'path') addD(target.getAttribute('d'));
-            else {
+
+            if (target.tagName.toLowerCase() === 'path') {
+                addD(target.getAttribute('d'));
+            } else {
                 const paths = target.querySelectorAll ? target.querySelectorAll('path') : [];
                 if (paths.length) paths.forEach(p => addD(p.getAttribute('d')));
                 else {
@@ -210,6 +154,7 @@
 
             const img = images[i];
             const path2d = perUsePath2D[i];
+
             if (!img || !path2d) return;
 
             let alpha = perPetalAlpha[i] ?? 0;
@@ -299,23 +244,28 @@
         }
     }
 
-    async function init() {
+    function loadAndDisplayImage(idx) {
+        if (images[idx]) return;
+
+        const img = new Image();
+        img.onload = () => {
+            images[idx] = img;
+            if (!perUsePath2D[idx]) buildPath2DForIndex(idx);
+            startFade(idx);
+        };
+        img.onerror = () => { console.warn('Erreur chargement', IMAGES[idx]); };
+        img.src = IMAGES[idx];
+    }
+
+    function init() {
         window.addEventListener('petal:visible', (e) => {
             const idx = e && e.detail && Number(e.detail.index);
             if (!Number.isFinite(idx)) { scheduleRender(); return; }
 
             buildPath2DForIndex(idx);
 
-            if (!images[idx]) {
-                const img = new Image();
-                img.onload = () => { images[idx] = img; startFade(idx); };
-                img.onerror = () => { images[idx] = null; startFade(idx); };
-                img.src = IMAGES[idx];
-            } else {
-                startFade(idx);
-            }
+            loadAndDisplayImage(idx);
         });
-
 
         svgEl = document.querySelector('svg');
         if (!svgEl) { console.warn('No svg'); return; }
@@ -324,13 +274,10 @@
         setCanvasSize();
 
         petalUses = Array.from(svgEl.querySelectorAll('use.petal'));
-
         buildPath2DsForUses();
 
         perPetalAlpha = new Array(petalUses.length).fill(0);
         perPetalFade  = new Array(petalUses.length).fill(null);
-
-        images = await preloadImages(IMAGES);
 
         window.addEventListener('resize', () => { setCanvasSize(); scheduleRender(); }, { passive: true });
         window.addEventListener('scroll', () => scheduleRender(), { passive: true });
