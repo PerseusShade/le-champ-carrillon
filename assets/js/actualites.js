@@ -192,23 +192,55 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (loadMoreBtn) {
-            loadMoreBtn.addEventListener('click', (e) => {
+            const originalText = loadMoreBtn.textContent;
+
+            loadMoreBtn.addEventListener('click', async (e) => {
                 if (allVisible) return;
 
                 e.preventDefault();
 
+                loadMoreBtn.textContent = 'Chargement...';
+                loadMoreBtn.style.pointerEvents = 'none';
+                loadMoreBtn.style.opacity = '0.7';
+
                 const nextCount = visibleCount + POSTS_PER_PAGE;
+                const newPosts = [];
+                const imagePromises = [];
 
                 for (let i = visibleCount; i < nextCount && i < posts.length; i++) {
-                    posts[i].style.display = '';
-                    posts[i].classList.add('fade-in');
+                    newPosts.push(posts[i]);
+                    const imgs = posts[i].querySelectorAll('img');
+
+                    imgs.forEach(img => {
+                        imagePromises.push(new Promise(resolve => {
+                            if (img.complete && img.naturalHeight !== 0) {
+                                resolve();
+                            } else {
+                                const tempImg = new Image();
+                                tempImg.onload = resolve;
+                                tempImg.onerror = resolve;
+                                tempImg.src = img.src;
+                            }
+                        }));
+                    });
                 }
+
+                await Promise.all(imagePromises);
+
+                newPosts.forEach(p => {
+                    p.style.display = '';
+                    p.classList.add('fade-in');
+                });
 
                 visibleCount = nextCount;
 
                 if (visibleCount >= posts.length) {
                     allVisible = true;
                 }
+
+                loadMoreBtn.textContent = originalText;
+                loadMoreBtn.style.pointerEvents = '';
+                loadMoreBtn.style.opacity = '1';
 
                 fixOddImages();
 
