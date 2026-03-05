@@ -64,7 +64,7 @@ with OUTPUT_FILE.open("w", encoding="utf-8") as f:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Actualités — Le Champ Carrillon</title>
+    <title>Actualités - Le Champ Carrillon</title>
     <link rel="stylesheet" href="../assets/css/header.css">
     <link rel="stylesheet" href="../assets/css/layout.css">
     <link rel="stylesheet" href="../assets/css/actualites.css">
