@@ -92,7 +92,7 @@ with OUTPUT_FILE.open("w", encoding="utf-8") as f:
                         <div class="photos-grid">''')
             for src in post["images"]:
                 f.write(f'''
-                            <img src="..{src}" alt="">''')
+                            <img src="..{src}" alt="" loading="lazy">''')
             f.write("""
                         </div>
                     </div>""")
