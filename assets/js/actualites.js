@@ -229,7 +229,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 newPosts.forEach(p => {
                     p.style.display = '';
-                    p.classList.add('fade-in');
+                    p.classList.remove('fade-in');
+                    p.classList.add('fade-in-fast');
                 });
 
                 visibleCount = nextCount;
@@ -244,9 +245,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 fixOddImages();
 
-                setTimeout(() => {
-                    animatePostsByVisibility();
-                }, 50);
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        newPosts.forEach(p => p.classList.add('show'));
+                    });
+                });
             });
         }
     })();
