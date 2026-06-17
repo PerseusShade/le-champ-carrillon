@@ -1,111 +1,45 @@
 name: Email-triggered auto-merge and generator
 
 on:
-  schedule:
-    - cron: '0 0,12 * * *'
-  workflow_dispatch: {}
+    schedule:
+        - cron: '0 0,12 * * *'
+    workflow_dispatch: {}
 
 permissions:
-  contents: write
+    contents: write
 
 jobs:
-  email-auto-merge:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    email-auto-merge:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: '3.x'
 
-      - name: Install Node deps for the automation script
-        working-directory: ./scripts/automation
-        run: |
-          npm ci || npm install
+            - name: Install Node deps for the automation script
+              working-directory: ./scripts/automation
+              run: |
+                  npm ci || npm install
 
-      - name: Ensure system CA certificates are up-to-date
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ca-certificates
-          sudo update-ca-certificates
-
-      - name: Fetch mailserver cert and trust it for Node
-        env:
-          EMAIL_HOST: ${{ vars.EMAIL_HOST }}
-          EMAIL_PORT: ${{ vars.EMAIL_PORT }}
-        run: |
-          set -e
-          mkdir -p /tmp/ca
-          openssl s_client -showcerts -connect "${EMAIL_HOST}:${EMAIL_PORT}" -servername "${EMAIL_HOST}" </dev/null 2>/dev/null \
-            | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/ca/mailserver.pem || true
-
-          if [ -s /tmp/ca/mailserver.pem ]; then
-            echo "NODE_EXTRA_CA_CERTS=/tmp/ca/mailserver.pem" >> $GITHUB_ENV
-          fi
-
-      - name: Build combined CA bundle (download issuer from AIA if needed)
-        env:
-          EMAIL_HOST: ${{ vars.EMAIL_HOST }}
-          EMAIL_PORT: ${{ vars.EMAIL_PORT }}
-        run: |
-          set -e
-          mkdir -p /tmp/ca
-          if [ ! -s /tmp/ca/mailserver.pem ]; then
-            openssl s_client -showcerts -connect "${EMAIL_HOST}:${EMAIL_PORT}" -servername "${EMAIL_HOST}" </dev/null 2>/dev/null \
-              | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/ca/mailserver.pem || true
-          fi
-
-          if [ -s /tmp/ca/mailserver.pem ]; then
-            AIA_URLS=$(openssl x509 -noout -text -in /tmp/ca/mailserver.pem | grep -oE 'http[s]?://[^ )]+' || true)
-            INTERMEDIATES=/tmp/ca/intermediates.pem
-            : > "$INTERMEDIATES"
-            for url in $AIA_URLS; do
-              curl -fsSL "$url" -o /tmp/ca/issuer.der || true
-              if [ -s /tmp/ca/issuer.der ]; then
-                if openssl x509 -inform der -in /tmp/ca/issuer.der -out /tmp/ca/issuer.pem 2>/dev/null; then
-                  cat /tmp/ca/issuer.pem >> "$INTERMEDIATES"
-                  rm -f /tmp/ca/issuer.der /tmp/ca/issuer.pem
-                  continue
-                else
-                  rm -f /tmp/ca/issuer.der
-                fi
-              fi
-              curl -fsSL "$url" -o /tmp/ca/issuer.pem || true
-              if [ -s /tmp/ca/issuer.pem ]; then
-                cat /tmp/ca/issuer.pem >> "$INTERMEDIATES"
-                rm -f /tmp/ca/issuer.pem
-              fi
-            done
-
-            COMBINED=/tmp/ca/combined-ca.pem
-            : > "$COMBINED"
-            if [ -s "$INTERMEDIATES" ]; then
-              cat "$INTERMEDIATES" >> "$COMBINED"
-            fi
-            cat /tmp/ca/mailserver.pem >> "$COMBINED"
-            if [ -f /etc/ssl/certs/ca-certificates.crt ]; then
-              cat /etc/ssl/certs/ca-certificates.crt >> "$COMBINED"
-            fi
-            echo "NODE_EXTRA_CA_CERTS=$COMBINED" >> $GITHUB_ENV
-          fi
-
-      - name: Run email-processor
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EMAIL_HOST: ${{ vars.EMAIL_HOST }}
-          EMAIL_PORT: ${{ vars.EMAIL_PORT }}
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-          EMAIL_SECURE: ${{ vars.EMAIL_SECURE }}
-          ALLOWED_SENDERS: ${{ secrets.ALLOWED_SENDERS }}
-          TARGET_BRANCH: ${{ vars.TARGET_BRANCH }}
-        run: |
-          if [ -z "$TARGET_BRANCH" ]; then export TARGET_BRANCH="main"; fi
-          node ./scripts/automation/email_listener.js
+            - name: Run email-processor
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  EMAIL_HOST: ${{ vars.EMAIL_HOST }}
+                  EMAIL_PORT: ${{ vars.EMAIL_PORT }}
+                  EMAIL_USER: ${{ secrets.EMAIL_USER }}
+                  EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+                  EMAIL_SECURE: ${{ vars.EMAIL_SECURE }}
+                  ALLOWED_SENDERS: ${{ secrets.ALLOWED_SENDERS }}
+                  TARGET_BRANCH: ${{ vars.TARGET_BRANCH }}
+              run: |
+                  if [ -z "$TARGET_BRANCH" ]; then export TARGET_BRANCH="main"; fi
+                  node ./scripts/automation/email_listener.js
